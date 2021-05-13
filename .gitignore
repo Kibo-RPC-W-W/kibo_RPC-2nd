@@ -1,0 +1,10 @@
+*.apk
+*class
+/app/build/
+
+.idea
+.txt
+
+### Gradle ###
+.gradle
+/build/
