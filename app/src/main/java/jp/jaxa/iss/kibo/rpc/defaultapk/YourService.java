@@ -10,6 +10,7 @@ public class YourService extends KiboRpcService {
     protected void runPlan1(){
         // write here your plan 1
         api.startMission();
+
     }
 
     @Override
