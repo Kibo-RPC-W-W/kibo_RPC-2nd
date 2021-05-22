@@ -18,9 +18,9 @@ public class YourService extends KiboRpcService {
         api.startMission();
 
         //move to point A
-        Point point1 = new Point(11.21f, -9.8f, 4.79f);
+        Point p1 = new Point(11.21f, -9.8f, 4.79f);
         Quaternion q1 = new Quaternion(0f, 0f, -0.707f, 0.707f);
-        api.moveTo(point1, q1, true);
+        api.moveTo(p1, q1, true);
 
     }
 
