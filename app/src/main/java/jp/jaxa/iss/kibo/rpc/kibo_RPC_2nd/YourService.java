@@ -25,19 +25,16 @@ public class YourService extends KiboRpcService {
     protected void runPlan1() {
         // write here your plan 1
         api.startMission();
-        api.moveTo(new Point(11.21, -9.8, 4.79), new Quaternion(0, 0, 0.707f, -0.707f), true);
+        //move to point A
+        Point p1 = new Point(11.21f, -9.8f, 4.79f);
+        Quaternion q1 = new Quaternion(0f, 0f, -0.707f, 0.707f);
+        api.moveTo(p1, q1, true);
     }
 
     public void pattern2(){
         Point z = new Point(11.21, -9.8, a_.getZ());
         api.moveTo(z, q, true);
         api.moveTo(a_, q, true);
-
-        //move to point A
-        Point p1 = new Point(11.21f, -9.8f, 4.79f);
-        Quaternion q1 = new Quaternion(0f, 0f, -0.707f, 0.707f);
-        api.moveTo(p1, q1, true);
-
     }
 
     @Override
