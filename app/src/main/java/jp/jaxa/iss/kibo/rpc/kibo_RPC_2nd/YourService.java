@@ -1,10 +1,16 @@
-package jp.jaxa.iss.kibo.rpc.defaultapk;
+package jp.jaxa.iss.kibo.rpc.kibo_RPC_2nd;
 
 import com.google.zxing.EncodeHintType;
 
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
 import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
+import gov.nasa.arc.astrobee.Kinematics;
+import gov.nasa.arc.astrobee.Result;
+import gov.nasa.arc.astrobee.types.Point;
+import gov.nasa.arc.astrobee.types.Quaternion;
+import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
+import jp.jaxa.iss.kibo.rpc.api.types.PointCloud;
 /**
  * Class meant to handle commands from the Ground Data System and execute them in Astrobee
  */
@@ -26,6 +32,11 @@ public class YourService extends KiboRpcService {
         Point z = new Point(11.21, -9.8, a_.getZ());
         api.moveTo(z, q, true);
         api.moveTo(a_, q, true);
+
+        //move to point A
+        Point p1 = new Point(11.21f, -9.8f, 4.79f);
+        Quaternion q1 = new Quaternion(0f, 0f, -0.707f, 0.707f);
+        api.moveTo(p1, q1, true);
 
     }
 
