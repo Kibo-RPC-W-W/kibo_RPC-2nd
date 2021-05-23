@@ -10,8 +10,6 @@ import com.google.zxing.NotFoundException;
 import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 
-import org.apache.commons.httpclient.AutoCloseInputStream;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
