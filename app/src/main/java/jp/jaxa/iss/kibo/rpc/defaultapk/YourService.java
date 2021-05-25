@@ -1,9 +1,16 @@
 package jp.jaxa.iss.kibo.rpc.defaultapk;
 
+import org.opencv.core.Mat;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
+
 import gov.nasa.arc.astrobee.Result;
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
 import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
+
+import static org.opencv.core.CvType.CV_64F;
+import static org.opencv.core.CvType.CV_8UC1;
 
 /**
  * Class meant to handle commands from the Ground Data System and execute them in Astrobee
@@ -58,45 +65,7 @@ public class YourService extends KiboRpcService {
             ++loopCounter;
         }
     }
-    public void moveTo(double x_org, double y_org, double z_org, double x_des, double y_des, double z_des)
-    {
-        double dx = x_des-x_org;
-        double dy = y_des-y_org;
-        double dz = z_des-z_org;
-        double magnitude = Math.sqrt((dx*dx)+(dy*dy)+(dz*dz));
-        double x_unit = dx/magnitude;
-        double y_unit = dy/magnitude;
-        double z_unit = dz/magnitude;
 
-        double matrix[][] =
-                {
-                        {1, 0, 0},
-                        {x_unit, y_unit, z_unit}
-                };
-
-        double x = matrix[0][1]*matrix[1][2] - matrix[1][1]*matrix[0][2];
-        double y = matrix[0][2]*matrix[1][0] - matrix[1][2]*matrix[0][0];
-        double z = matrix[0][0]*matrix[1][1] - matrix[1][0]*matrix[0][1];
-        double i = matrix[1][0]-matrix[0][0];
-        double j = matrix[1][1]-matrix[0][1];
-        double k = matrix[1][2]-matrix[0][2];
-        double q = Math.sqrt(x*x + y*y + z*z);
-        double p = Math.sqrt(i*i + j*j + k*k);
-        double theta = Math.acos((2 - p*p) / 2);
-
-        double a = Math.sin(theta/2)*x/q;
-        double b = Math.sin(theta/2)*y/q;
-        double c = Math.sin(theta/2)*z/q;
-        double w = Math.cos(theta/2);
-
-        double pitch = -Math.atan((2 * (a*w + b*c)) / (w*w - a*a - b*b + c*c));
-        double roll = -Math.asin(2 * (a*c - b*w));
-        double yaw = Math.atan((2 * (c*w + a*b)) / (w*w + a*a - b*b - c*c));
-        double sx = (0.103 * Math.cos(roll + 0.279) / Math.cos(1.57080 + yaw));
-        double sy = (0.103 * Math.sin(roll + 0.279) / Math.cos(pitch));
-
-        moveToPoint((float)x_org - (float)sx, (float)y_org, (float)z_org + (float)sy, (float)a, (float)b, (float)c, (float)w);
-    }
 
     public void moveToA_prime(int pattern)
     {
@@ -105,6 +74,31 @@ public class YourService extends KiboRpcService {
     }
 
 
+    public Mat undistortImg(Mat src)
+    {
+        double [][] Nav_Intrinsics = api.getNavCamIntrinsics();
+        Mat cam_Matrix = new Mat();
+        Mat dist_Coeff = new Mat();
+        Mat output = new Mat();
+
+//        cam_matrix & dat coefficient arr to mat
+        for (int i = 0; i <= 8; i++)
+        {
+            int row , col ;
+            if(i < 3){row = 0;col = i;}
+            else if(i<6){row = 1;col = i-3;}
+            else{ row = 2;col = i-6;}
+            cam_Matrix.put(row, col, Nav_Intrinsics[0][i]);
+        }
+
+        for(int i = 0; i<=4 ;i++)
+        {
+            dist_Coeff.put(0,i,Nav_Intrinsics[1][i]);
+        }
+
+        Imgproc.undistort(src, output, cam_Matrix, dist_Coeff);
+        return output;
+    }
 
     public void aimLaser()
     {
