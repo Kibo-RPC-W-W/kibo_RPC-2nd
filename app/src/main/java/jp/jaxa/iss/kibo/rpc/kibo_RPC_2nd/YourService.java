@@ -1,6 +1,7 @@
 package jp.jaxa.iss.kibo.rpc.kibo_RPC_2nd;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.LuminanceSource;
@@ -26,11 +27,10 @@ import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
  */
 public class YourService extends KiboRpcService {
 
-    static int pat;
+    static int pattern;
     float test = 0;
-    static float patf,px, py, pz;
 
-    Point a_ = new Point();
+    static Point a_ = new Point();
     Quaternion q = new Quaternion();
 
 
@@ -42,7 +42,18 @@ public class YourService extends KiboRpcService {
         Point p1 = new Point(11.21f, -9.8f, 4.79f);
         Quaternion q1 = new Quaternion(0f, 0f, -0.707f, 0.707f);
         api.moveTo(p1, q1, true);
-
+        Log.println(Log.INFO, "IMU", api.getRobotKinematics().getOrientation().toString());
+        Log.println(Log.INFO, "position", api.getRobotKinematics().getPosition().toString());
+        try {
+            QRReader(api.getBitmapNavCam());
+            QRReader(api.getBitmapDockCam());
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        }
+        Log.println(Log.INFO,"Point", a_.toString());
+        pattern2();
+        Log.println(Log.INFO, "IMU", api.getRobotKinematics().getOrientation().toString());
+        Log.println(Log.INFO, "position", api.getRobotKinematics().getPosition().toString());
     }
 
     public void pattern2(){
@@ -50,7 +61,7 @@ public class YourService extends KiboRpcService {
         api.moveTo(z, q, true);
         api.moveTo(a_, q, true);
     }
-    public  static <BufferedImage> void QRReader(Bitmap bitmap) throws IOException, NotFoundException {
+    public static void QRReader(Bitmap bitmap) throws NotFoundException {
         MultiFormatReader formatReader = new MultiFormatReader();
         //讀取指定的二維碼文件
         byte[] arr = bitmapToArray(bitmap);
@@ -64,7 +75,8 @@ public class YourService extends KiboRpcService {
         String regex = "-?\\d*\\.?\\d*";
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(format);
-        float mf = Float.parseFloat(m.group());
+        pattern  = Integer.parseInt(m.group(0));
+        a_ = new Point(Float.parseFloat(m.group(1)), Float.parseFloat(m.group(2)), Float.parseFloat(m.group(3)));
     }
 
     public static byte[] bitmapToArray(Bitmap bmp){
