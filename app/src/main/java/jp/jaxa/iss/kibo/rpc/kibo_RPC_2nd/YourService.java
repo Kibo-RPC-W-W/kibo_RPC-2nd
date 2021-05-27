@@ -27,6 +27,8 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import gov.nasa.arc.astrobee.Kinematics;
 import gov.nasa.arc.astrobee.Result;
@@ -37,6 +39,7 @@ import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
 
 import static android.graphics.Bitmap.createBitmap;
 import android.graphics.Bitmap;
+import android.util.Log;
 /**
  * Class meant to handle commands from the Ground Data System and execute them in Astrobee
  */
@@ -45,10 +48,11 @@ import android.graphics.Bitmap;
  * A(11.21, -9.8, 4.79)
  */
 public class YourService extends KiboRpcService {
+    static int pattern;
+    float test = 0;
 
-
-    Point a_ = new Point();
     Quaternion q = new Quaternion();
+    static Point a_ = new Point();
 
     @Override
     protected void runPlan1() {
@@ -56,7 +60,14 @@ public class YourService extends KiboRpcService {
         api.startMission();
         //move to point A
         moveTo(11.21,-9.8,4.79,0,0,-0.707,0.707);
+        Log.d("IMU", api.getRobotKinematics().getOrientation().toString());
+        Log.d("position", api.getRobotKinematics().getPosition().toString());
         //read qr and get info
+        getQRcode();
+        Log.d("Point", a_.toString());
+        pattern2();
+        Log.d("IMU", api.getRobotKinematics().getOrientation().toString());
+        Log.d("position", api.getRobotKinematics().getPosition().toString());
 
     }
 
@@ -69,7 +80,6 @@ public class YourService extends KiboRpcService {
     private void moveTo(double px, double py, double pz,
                         double qx, double qy, double qz,
                         double qw) {
-        //指定した座標に移動させる
         //Moving and orientating Astrobee according to the coordinates and quaternions inputted above
         final int LOOP_MAX = 20;
         final Point point = new Point(px, py, pz);
@@ -98,7 +108,7 @@ public class YourService extends KiboRpcService {
         //acquire real time data for orientation and coordinates
         int timeout_sec = 10;
         //help me here cuz the file says put int inside getTrustedRobotKinematics is ok, but the real situation is forbidden
-        Kinematics kinematics = api.getTrustedRobotKinematics(timeout_sec);
+        Kinematics kinematics = api.getTrustedRobotKinematics();
         Point ans_point= null;
 
         if(kinematics != null){
@@ -114,18 +124,18 @@ public class YourService extends KiboRpcService {
     private String readQR(Bitmap bitmap){
         //scan and read qrcode
         String result = "eeeeeeerrrrrrrrrrrooooooorrrrrrr";
-        int n = (int) 0.5;
-        int m = (int) 0.5;
+        int s = (int) 0.5;
+        int q = (int) 0.5;
 
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
-        int newWidth = width * n;
-        int newHeight = height * m;
+        int newWidth = width * s;
+        int newHeight = height * q;
         int startX = (width - newWidth) / 2;
         int startY = (height - newHeight) / 2;
 
         Bitmap bitmapTriming = createBitmap(bitmap, startX, startY, newWidth, newHeight);
-        Bitmap bitmapResize = Bitmap.createScaledBitmap(bitmapTriming, (int) (newWidth * m), (int) (newHeight * m), true);
+        Bitmap bitmapResize = Bitmap.createScaledBitmap(bitmapTriming, (int) (newWidth * s), (int) (newHeight * q), true);
         width = bitmapResize.getWidth();
         height = bitmapResize.getHeight();
         int[] pixels = new int[width * height];
@@ -140,14 +150,20 @@ public class YourService extends KiboRpcService {
             tmpHintsMap.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
             com.google.zxing.Result decodeResult = reader.decode(binaryBitmap, tmpHintsMap);
             result = decodeResult.getText();
+            System.out.println(result);
+            String regex = "-?\\d*\\.?\\d*";
+            Pattern p = Pattern.compile(regex);
+            Matcher m = p.matcher(result);
+            pattern  = Integer.parseInt(m.group(0));
+            a_ = new Point(Float.parseFloat(m.group(1)), Float.parseFloat(m.group(2)), Float.parseFloat(m.group(3)));
         } catch (Exception e) {
+
         }
 
         return result;
     }
 
     private void getQRcode(){
-        //QRコードへの移動と読み取り
         //Initiating the detection and scanning of QR code
         int loop_count = 0;
         String QRcodeString = "error";
@@ -169,7 +185,7 @@ public class YourService extends KiboRpcService {
         String[] strings = QRcodeString.split(",");
     }
 
-    private void getAprime(){
+    private void getA_(){
 
     }
 
