@@ -42,18 +42,19 @@ public class YourService extends KiboRpcService {
         Point p1 = new Point(11.21f, -9.8f, 4.79f);
         Quaternion q1 = new Quaternion(0f, 0f, -0.707f, 0.707f);
         api.moveTo(p1, q1, true);
-        Log.println(Log.INFO, "IMU", api.getRobotKinematics().getOrientation().toString());
-        Log.println(Log.INFO, "position", api.getRobotKinematics().getPosition().toString());
+        Log.d("IMU", api.getRobotKinematics().getOrientation().toString());
+        Log.d("position", api.getRobotKinematics().getPosition().toString());
         try {
             QRReader(api.getBitmapNavCam());
             QRReader(api.getBitmapDockCam());
         } catch (NotFoundException e) {
             e.printStackTrace();
         }
-        Log.println(Log.INFO,"Point", a_.toString());
+
+        Log.d("Point", a_.toString());
         pattern2();
-        Log.println(Log.INFO, "IMU", api.getRobotKinematics().getOrientation().toString());
-        Log.println(Log.INFO, "position", api.getRobotKinematics().getPosition().toString());
+        Log.d("IMU", api.getRobotKinematics().getOrientation().toString());
+        Log.d("position", api.getRobotKinematics().getPosition().toString());
     }
 
     public void pattern2(){
