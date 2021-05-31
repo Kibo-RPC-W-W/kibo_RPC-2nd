@@ -165,7 +165,7 @@ public class YourService extends KiboRpcService {
         return info;
     }
 
-    public void aimLaser(Point current_pos)
+    public void aimLaser()
     {
 //        remember to put in loop
         Mat Nav_Cam_View = undistortImg(api.getMatNavCam())[0];
