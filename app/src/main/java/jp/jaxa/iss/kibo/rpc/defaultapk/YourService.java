@@ -230,16 +230,10 @@ public class YourService extends KiboRpcService {
         double[] p4 =  tvecs.get(0,3);
         double[] target_vec_cam = get_midpoint(p2,p4);
 
-        double[] target_vec_abs = new double[3];
-        double[][] t_vec_ijk = new double[3][3];
-        for (int i = 0; i < 3; i++){t_vec_ijk[0][i] = target_vec_cam[0] * cam_dir_i[i]; }
-        for (int i = 0; i < 3; i++){t_vec_ijk[1][i] = target_vec_cam[1] * cam_dir_j[i]; }
-        for (int i = 0; i < 3; i++){t_vec_ijk[2][i] = target_vec_cam[2] * cam_dir_k[i]; }
 
-        for (int i = 0; i < 3; i++)
-        {
-            target_vec_abs[i] = t_vec_ijk[0][i] + t_vec_ijk[1][i] + t_vec_ijk[2][i];
-        }
+        double[][] t_mat = new double[3][3];
+        t_mat[0] = cam_dir_i; t_mat[1] = cam_dir_j; t_mat[2] = cam_dir_k;
+        double[] target_vec_abs = multiply_mat_vec(t_mat, target_vec_cam);
 
 //        get theta between camZ and target_vec_abs
         double[] angle_info = get_angle_info(cam_dir_k,target_vec_abs);
