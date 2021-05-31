@@ -11,6 +11,18 @@ public class API {
     public API(KiboRpcApi api){
         this.api = api;
     }
+
+    public void moveTo(Point p, Quaternion q){
+        Point output = new Point(p.getX(), p.getY(), p.getZ());
+        Point robotPose = null;
+        double distance = 0;
+//        do{
+            api.moveTo(p, q, true);
+//            robotPose = api.getTrustedRobotKinematics().getPosition();
+//            distance = Math.pow(p.getX() - robotPose.getX(), 2) + Math.pow(p.getY() - robotPose.getY(), 2) + Math.pow(p.getZ() - robotPose.getZ(), 2);
+//
+//        }while(distance > 2);
+    }
     private Point getPositionWrapper(double def_pos_x, double def_pos_y, double def_pos_z){
         //現在位置を取得する
         //Acquiring the real-time data for Astrobee’s orientation and coordinates
@@ -52,37 +64,37 @@ public class API {
         }
     }
 
-    public void moveTo(double pos_x,double pos_y,double pos_z,
-                       double qua_x,double qua_y,double qua_z,
-                       double qua_w){
-        moveTo(new Point(pos_x, pos_y, pos_z), new Quaternion((float)qua_x, (float)qua_y, (float)qua_z, (float)qua_w));
-    }
-
-    //好東西
-    public void moveTo(Point p, Quaternion q){
-        //指定した座標に移動させる
-        //Moving and orientating Astrobee according to the coordinates and quaternions inputted above
-        final int LOOP_MAX = 20;
-        final Point point = p;
-        final Quaternion quaternion = q;
-        Result result;
-        int loop_count = 0;
-        do{
-            result = api.moveTo(point,quaternion,true);
-            Point position = getPositionWrapper(p.getX(), p.getY(), p.getZ());
-            double m_pos_x = position.getX();
-            double m_pos_y = position.getY();
-            double m_pos_z = position.getZ();
-            if ((p.getX() <= -9.4) && m_pos_x >= (p.getX() - 0.01) && m_pos_x <= (p.getX() + 0.01) && m_pos_y >= (p.getY() - 0.01) && m_pos_y <= (p.getY() + 0.01) && m_pos_z >= (p.getZ() - 0.01) && m_pos_z <= (p.getZ() + 0.01)) {
-                break;
-            }  else if (m_pos_y < (p.getY() + 0.05)) {
-                break;
-            }else{
-                loop_count++;
-            }
-        }while(!result.hasSucceeded() && loop_count < LOOP_MAX);
-
-    }
+//    public void moveTo(double pos_x,double pos_y,double pos_z,
+//                       double qua_x,double qua_y,double qua_z,
+//                       double qua_w){
+//        moveTo(new Point(pos_x, pos_y, pos_z), new Quaternion((float)qua_x, (float)qua_y, (float)qua_z, (float)qua_w));
+//    }
+//
+//    //好東西 才怪
+//    public void moveTo(Point p, Quaternion q){
+//        //指定した座標に移動させる
+//        //Moving and orientating Astrobee according to the coordinates and quaternions inputted above
+//        final int LOOP_MAX = 20;
+//        final Point point = p;
+//        final Quaternion quaternion = q;
+//        Result result;
+//        int loop_count = 0;
+//        do{
+//            result = api.moveTo(point,quaternion,true);
+//            Point position = getPositionWrapper(p.getX(), p.getY(), p.getZ());
+//            double m_pos_x = position.getX();
+//            double m_pos_y = position.getY();
+//            double m_pos_z = position.getZ();
+//            if ((p.getX() <= -9.4) && m_pos_x >= (p.getX() - 0.01) && m_pos_x <= (p.getX() + 0.01) && m_pos_y >= (p.getY() - 0.01) && m_pos_y <= (p.getY() + 0.01) && m_pos_z >= (p.getZ() - 0.01) && m_pos_z <= (p.getZ() + 0.01)) {
+//                break;
+//            }  else if (m_pos_y < (p.getY() + 0.05)) {
+//                break;
+//            }else{
+//                loop_count++;
+//            }
+//        }while(!result.hasSucceeded() && loop_count < LOOP_MAX);
+//
+//    }
 
     //這是特定用途的吧
     private void moveToQR(int QR_num) {

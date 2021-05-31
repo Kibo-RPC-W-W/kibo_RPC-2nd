@@ -14,10 +14,12 @@ import com.google.zxing.Reader;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
+import org.opencv.android.Utils;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.aruco.Aruco;
 import org.opencv.aruco.DetectorParameters;
 import org.opencv.aruco.Dictionary;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -55,7 +57,7 @@ public class YourService extends KiboRpcService {
     static int pattern;
     float test = 0;
 
-    static Point a_ = new Point();
+    static Point a_ = null;
 
     Quaternion q = new Quaternion();
 
@@ -64,91 +66,93 @@ public class YourService extends KiboRpcService {
         // write here your plan 1
         api.startMission();
         //move to point A
-        Point p1 = new Point(11.21f, -9.8f, 4.79f);
-        Quaternion q1 = new Quaternion(0f, 0f, -0.707f, 0.707f);
-        ourAPI.moveTo(p1, q1);
+        Point p1 = new Point(11.21f, -10f, 5.0f);
+        Quaternion q1 = new Quaternion(0f, 0f, -0.707f, 0.71f);
+        Log.d("START", "move to a");
+        moveTo(p1, q1);
         //show point A info
         Log.d("IMU", api.getRobotKinematics().getOrientation().toString());
         Log.d("position", api.getRobotKinematics().getPosition().toString());
         //read qrcode
-        getQRcode();
-
-        Log.d("Point A'", a_.toString());
+        Log.d("START", "read QR");
+//        api.flashlightControlFront(0.05f);
+        Bitmap bitmap = null;
+        Mat m = null;
+        for(int i =0; i < 20; ++i){
+            m = api.getMatNavCam();
+            if(m != null){
+                Log.d("Find", "Find bitmap");
+                bitmap = clearCode(m);
+                QRReader(bitmap);
+                Log.d("End", "QRReader End");
+                if (a_ == null) {
+                    Log.d("Fail", "Fail to find QR code");
+                }else{
+                    Log.d("Point A'", a_.toString());
+                    break;
+                }
+                m = null;
+                moveTo(api.getTrustedRobotKinematics().getPosition(), randomAngle());
+                Log.d("START", "start new pose to get qr code");
+            }
+        }
+        moveTo(p1, q1);
         //to A'
-        pattern2();
+        ToA_.pattern2(a_, q, api);
         Log.d("IMU", api.getRobotKinematics().getOrientation().toString());
         Log.d("position", api.getRobotKinematics().getPosition().toString());
     }
+    public Quaternion randomAngle(){
+        float rotation = api.getTrustedRobotKinematics().getOrientation().getW();
+        rotation += Math.random() * 0.1;
+        return new Quaternion(api.getTrustedRobotKinematics().getOrientation().getX(), api.getTrustedRobotKinematics().getOrientation().getY(), api.getTrustedRobotKinematics().getOrientation().getZ(), rotation);
+    }
+    public Bitmap clearCode(Mat m){
+        Mat zoom = m.submat(m.rows() / 2, m.rows(), m.cols() / 2, m.cols());//new Mat((int)(m.rows() / 1.5), (int)(m.cols() / 1.5), m.type());
+        Mat zo = new Mat(zoom.rows(), zoom.cols(), zoom.type());
+        Mat zl = new Mat(zoom.rows(), zoom.cols(), zoom.type());
+        Mat zz = new Mat(zoom.rows(), zoom.cols(), zoom.type());
+        Imgproc.medianBlur(zoom, zo, 11);
+        Imgproc.medianBlur(zoom, zz, 7);
+        Imgproc.medianBlur(zoom, zl, 3);
+        Core.addWeighted(zoom, 2.1, zl, -1.2, 0, zoom);
+        Core.addWeighted(zoom, 2.1, zo, -0.9, 0, zoom);
+        Core.addWeighted(zoom, 2.1, zz, -1.1, 0, zoom);
+//        Imgproc.cvtColor(zoom, zoom, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.equalizeHist(zoom, zoom);
+        Imgproc.threshold(zoom, zoom, 90, 180, Imgproc.THRESH_BINARY);
 
-    private String readQR(Bitmap bitmap){
-        //scan and read qrcode
-        String result = "eeeeeeerrrrrrrrrrrooooooorrrrrrr";
-        int s = (int) 0.5;
-        int q = (int) 0.5;
-
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-        int newWidth = width * s;
-        int newHeight = height * q;
-        int startX = (width - newWidth) / 2;
-        int startY = (height - newHeight) / 2;
-
-        Bitmap bitmapTriming = createBitmap(bitmap, startX, startY, newWidth, newHeight);
-        Bitmap bitmapResize = Bitmap.createScaledBitmap(bitmapTriming, (int) (newWidth * s), (int) (newHeight * q), true);
-        width = bitmapResize.getWidth();
-        height = bitmapResize.getHeight();
-        int[] pixels = new int[width * height];
-        bitmapResize.getPixels(pixels, 0, width, 0, 0, width, height);
-
-        try {
-            LuminanceSource source = new RGBLuminanceSource(width, height, pixels);
-            BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(source));
-            Reader reader = new QRCodeReader();
-            Map<DecodeHintType, Object> tmpHintsMap;
-            tmpHintsMap = new EnumMap<DecodeHintType, Object>(DecodeHintType.class);
-            tmpHintsMap.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
-            com.google.zxing.Result decodeResult = reader.decode(binaryBitmap, tmpHintsMap);
-            result = decodeResult.getText();
-            System.out.println(result);
-            String regex = "-?\\d*\\.?\\d*";
-            Pattern p = Pattern.compile(regex);
-            Matcher m = p.matcher(result);
-            pattern  = Integer.parseInt(m.group(0));
-            a_ = new Point(Float.parseFloat(m.group(1)), Float.parseFloat(m.group(2)), Float.parseFloat(m.group(3)));
-        } catch (Exception e) {
-
-        }
-
-        return result;
+        Mat mr = new Mat(m.rows(), m.cols(), m.type());
+        System.out.println(zoom.size());
+        System.out.println(mr.size());
+        Imgproc.resize(zoom, mr, mr.size(), 2, 2, 2);
+        Imgproc.cvtColor(mr, mr, Imgproc.COLOR_GRAY2RGBA, 4);
+        Bitmap r = Bitmap.createBitmap(mr.cols(), mr.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(m, r);
+        return r;
+    }
+    public void moveTo(Point p, Quaternion q){
+        Point output = null;
+        Point robotPose = null;
+        double x = 0, y = 0, z = 0;
+        double kP = 0.25;
+        double kD = 0.001;
+        double xo, yo, zo;
+        double lx = 0, ly = 0, lz = 0;
+        do{
+            api.moveTo(p, q, true);
+            robotPose = api.getTrustedRobotKinematics().getPosition();
+            x = p.getX() - robotPose.getX();
+            y = p.getY() - robotPose.getY();
+            z = p.getZ() - robotPose.getZ();
+            xo = p.getX() + x * kP + (lx - x) * kD;
+            yo = p.getY() + y * kP + (ly - y) * kD;
+            zo = p.getY() + z * kP + (lz - z) * kD;
+            output = new Point(xo, yo, zo);
+            lx = x; ly = y; lz = z;
+        }while(x + y + z > 0.3);
     }
 
-    private void getQRcode(){
-        //Initiating the detection and scanning of QR code
-        int loop_count = 0;
-        String QRcodeString = "error";
-        while(QRcodeString.equals("error") && loop_count < 20){
-            Bitmap bitmap;
-
-            api.flashlightControlFront(0.025f);
-            try {
-                ourAPI.sleep(2000);
-            } catch (Exception e) {
-            }
-            bitmap = api.getBitmapNavCam();
-            api.flashlightControlFront(0);
-
-            QRcodeString = readQR(bitmap);
-            loop_count ++;
-        }
-        api.sendDiscoveredQR(QRcodeString);
-        String[] strings = QRcodeString.split(",");
-    }
-
-    public void pattern2(){
-        Point z = new Point(11.21, -9.8, a_.getZ());
-        api.moveTo(z, q, true);
-        api.moveTo(a_, q, true);
-    }
     public static byte[] bitmapToArray(Bitmap bmp){
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bmp.compress(Bitmap.CompressFormat.JPEG, 50, stream);
@@ -156,23 +160,32 @@ public class YourService extends KiboRpcService {
         return byteArray;
     }
 
-    //不推間使用
-    public static void QRReader(Bitmap bitmap) throws NotFoundException {
+    //不推薦使用
+    public static void QRReader(Bitmap bitmap) {
         MultiFormatReader formatReader = new MultiFormatReader();
         //讀取指定的二維碼文件
         byte[] arr = bitmapToArray(bitmap);
         LuminanceSource source = new PlanarYUVLuminanceSource(arr, bitmap.getWidth(), bitmap.getHeight(), 0, 0, bitmap.getWidth(), bitmap.getHeight(), false);
 
         BinaryBitmap bBitmap = new BinaryBitmap(new HybridBinarizer(source));
-        com.google.zxing.Result qrResult = formatReader.decode(bBitmap);
+        com.google.zxing.Result qrResult = null;
+        try {
+            qrResult = formatReader.decode(bBitmap);
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        }
         //輸出相關的二維碼信息
-        System.out.println(qrResult.getText());
+        Log.d("test", qrResult.getText());
         String format = qrResult.getText();
         String regex = "-?\\d*\\.?\\d*";
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(format);
+        if(m.groupCount() < 4){
+            return;
+        }
         pattern = Integer.parseInt(m.group(0));
         a_ = new Point(Float.parseFloat(m.group(1)), Float.parseFloat(m.group(2)), Float.parseFloat(m.group(3)));
+
     }
 
 }
