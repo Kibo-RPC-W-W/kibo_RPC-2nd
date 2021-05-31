@@ -64,7 +64,7 @@ public class YourService extends KiboRpcService {
         // write here your plan 1
         api.startMission();
         //move to point A
-        Point p1 = new Point(11.21f, -9.8f, 4.79f);
+        Point p1 = new Point(12.0f, -10.5f, 5.5f);
         Quaternion q1 = new Quaternion(0f, 0f, -0.707f, 0.707f);
         ourAPI.moveTo(p1, q1);
         //show point A info
