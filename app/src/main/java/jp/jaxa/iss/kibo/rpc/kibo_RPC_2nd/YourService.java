@@ -82,27 +82,17 @@ public class YourService extends KiboRpcService {
         //read qrcode
         Log.d("START", "read QR");
 //        api.flashlightControlFront(0.05f);
-        Bitmap bitmap = null;
-        Mat m = null;
-        for(int i =0; i < 20; ++i){
-            m = api.getMatNavCam();
-            if(m != null){
-                Log.d("Find", "Find bitmap");
-                bitmap = clearCode(m);
-                readQR(bitmap);
-                Log.d("End", "QRReader End");
-                if (a_ == null) {
-                    Log.d("Fail", "Fail to find QR code");
-                }else{
-                    Log.d("Point A'", a_.toString());
-                    break;
-                }
-                m = null;
-                moveTo(api.getTrustedRobotKinematics().getPosition(), randomAngle());
-                Log.d("START", "start new pose to get qr code");
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                getQR();
             }
-        }
-        moveTo(p1, q1);
+        });
+
+        t.start();
+        //get point A'
+        Log.d("FINISH", "getQR success");
+
         //to A'
         ToA_.pattern2(a_, q, api);
         Log.d("IMU", api.getRobotKinematics().getOrientation().toString());
