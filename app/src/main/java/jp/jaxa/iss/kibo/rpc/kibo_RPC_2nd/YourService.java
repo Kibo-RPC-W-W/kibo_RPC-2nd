@@ -154,11 +154,15 @@ public class YourService extends KiboRpcService {
         }while(x + y + z > 0.3);
     }
 
-    public static byte[] bitmapToArray(Bitmap bmp){
+    public static int[] bitmapToArray(Bitmap bmp){
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bmp.compress(Bitmap.CompressFormat.JPEG, 50, stream);
         byte[] byteArray = stream.toByteArray();
-        return byteArray;
+        int[] intArray = new int[byteArray.length];
+        for(int i = 0; i < byteArray.length; ++i){
+            intArray[i] = byteArray[i];
+        }
+        return intArray;
     }
 
     //不推薦使用
@@ -168,8 +172,8 @@ public class YourService extends KiboRpcService {
         hints.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
         formatReader.setHints(hints);
 
-        byte[] arr = bitmapToArray(bitmap);
-        LuminanceSource source = new PlanarYUVLuminanceSource(arr, bitmap.getWidth(), bitmap.getHeight(), 0, 0, bitmap.getWidth(), bitmap.getHeight(), false);
+        int[] arr = bitmapToArray(bitmap);
+        LuminanceSource source = new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), arr);
 
         BinaryBitmap bBitmap = new BinaryBitmap(new HybridBinarizer(source));
         com.google.zxing.Result qrResult = null;
