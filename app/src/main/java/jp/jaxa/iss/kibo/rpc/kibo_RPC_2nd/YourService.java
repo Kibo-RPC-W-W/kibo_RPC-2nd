@@ -34,6 +34,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -81,15 +82,9 @@ public class YourService extends KiboRpcService {
 
         //read qrcode
         Log.d("START", "read QR");
-//        api.flashlightControlFront(0.05f);
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                getQR();
-            }
-        });
+        api.flashlightControlFront(0.05f);
+        getQR();
 
-        t.start();
         //get point A'
         Log.d("FINISH", "getQR success");
 
@@ -97,39 +92,6 @@ public class YourService extends KiboRpcService {
         ToA_.pattern2(a_, q, api);
         Log.d("IMU", api.getRobotKinematics().getOrientation().toString());
         Log.d("position", api.getRobotKinematics().getPosition().toString());
-    }
-
-
-    public Quaternion randomAngle(){
-        float rotation = api.getTrustedRobotKinematics().getOrientation().getW();
-        rotation += Math.random() * 0.1;
-        return new Quaternion(api.getTrustedRobotKinematics().getOrientation().getX(), api.getTrustedRobotKinematics().getOrientation().getY(), api.getTrustedRobotKinematics().getOrientation().getZ(), rotation);
-    }
-
-    public Bitmap clearCode(Mat m){
-        Mat zoom = m.submat(m.rows() / 2, m.rows(), m.cols() / 2, m.cols());
-        //new Mat((int)(m.rows() / 1.5), (int)(m.cols() / 1.5), m.type());
-        Mat zo = new Mat(zoom.rows(), zoom.cols(), zoom.type());
-        Mat zl = new Mat(zoom.rows(), zoom.cols(), zoom.type());
-        Mat zz = new Mat(zoom.rows(), zoom.cols(), zoom.type());
-        Imgproc.medianBlur(zoom, zo, 11);
-        Imgproc.medianBlur(zoom, zz, 7);
-        Imgproc.medianBlur(zoom, zl, 3);
-        Core.addWeighted(zoom, 2.1, zl, -1.2, 0, zoom);
-        Core.addWeighted(zoom, 2.1, zo, -0.9, 0, zoom);
-        Core.addWeighted(zoom, 2.1, zz, -1.1, 0, zoom);
-        //Imgproc.cvtColor(zoom, zoom, Imgproc.COLOR_RGB2GRAY);
-        Imgproc.equalizeHist(zoom, zoom);
-        Imgproc.threshold(zoom, zoom, 90, 180, Imgproc.THRESH_BINARY);
-
-        Mat mr = new Mat(m.rows(), m.cols(), m.type());
-        System.out.println(zoom.size());
-        System.out.println(mr.size());
-        Imgproc.resize(zoom, mr, mr.size(), 2, 2, 2);
-        Imgproc.cvtColor(mr, mr, Imgproc.COLOR_GRAY2RGBA, 4);
-        Bitmap r = Bitmap.createBitmap(mr.cols(), mr.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(m, r);
-        return r;
     }
 
     private void moveTo(Point p, Quaternion q){
@@ -154,15 +116,6 @@ public class YourService extends KiboRpcService {
         }while(x + y + z > 0.3);
     }
 
-    public static byte[] bitmapToArray(Bitmap bmp){
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bmp.compress(Bitmap.CompressFormat.JPEG, 50, stream);
-        byte[] byteArray = stream.toByteArray();
-        return byteArray;
-    }
-
-    //不推薦使用
-
     public static String readQR(Bitmap bitmap) {
 
         try {
@@ -177,10 +130,13 @@ public class YourService extends KiboRpcService {
             QRCodeReader qrCodeReader = new QRCodeReader();
             com.google.zxing.Result result = qrCodeReader.decode(binaryBitmap);
             if(result.getNumBits() != 0){
+                Log.d("FINISH", "readQR success");
             }
             else if(result.getNumBits() == 0){
+                Log.d("FAIL", "readQR failed");
             }
             else{
+                Log.d("404", "readQR error");
             }
             return result.getText();
         } catch (Exception e) {
@@ -194,11 +150,11 @@ public class YourService extends KiboRpcService {
         String getQRString = readQR(api.getBitmapNavCam());
         if (getQRString == null){
             Log.d("getQR: ","failed");
-            readQR(api.getBitmapNavCam());
-            if(getQRString != null) {
-                sort(getQRString);
-                api.sendDiscoveredQR(getQRString);
-            }
+//            readQR(api.getBitmapNavCam());
+//            if(getQRString != null) {
+//                sort(getQRString);
+//                api.sendDiscoveredQR(getQRString);
+//            }
 
         }else if(getQRString != null){
             try{
@@ -206,7 +162,7 @@ public class YourService extends KiboRpcService {
                 sort(getQRString);
                 api.sendDiscoveredQR(getQRString);
             }catch (Exception e){
-                Log.e("getQR error: ","eeeeeeeeeeeeeeerrrrrrrrrrrrrrrrrrrrrrrrrrroooooooooooooooorrrrrrrrrrrrr");
+                Log.e("getQR error: ","error");
             }
         }
         return getQRString;
@@ -226,4 +182,3 @@ public class YourService extends KiboRpcService {
     }
 
 }
-
