@@ -82,22 +82,10 @@ public class YourService extends KiboRpcService {
 
         //read qrcode
         Log.d("START", "read QR");
-//        api.flashlightControlFront(0.05f);
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                getQR();
-            }
-        });
-
-        t.start();
-
-        try{
-            t.join();
-            Log.d("FINISH", "getQR success");
-        }catch(InterruptedException e){
-
-        }
+        api.flashlightControlFront(0.05f);
+        getQR();
+        //get point A'
+        Log.d("FINISH", "getQR success");
 
         //to A'
         pattern23456(a_, q);
@@ -105,7 +93,8 @@ public class YourService extends KiboRpcService {
         Log.d("position", api.getRobotKinematics().getPosition().toString());
     }
 
-    private void moveTo(Point p, Quaternion q) {
+
+    private void moveTo(Point p, Quaternion q){
         Point output = null;
         Point robotPose = null;
         double x = 0, y = 0, z = 0;
@@ -152,6 +141,7 @@ public class YourService extends KiboRpcService {
     /**************************************************************************
      *                        read QR
      **************************************************************************/
+
     public static String readQR(Bitmap bitmap) {
         try {
             int width = bitmap.getWidth();
@@ -159,17 +149,20 @@ public class YourService extends KiboRpcService {
             int[] pixel = new int[width * height];
             bitmap.getPixels(pixel,0,width,0,0,width,height);
             RGBLuminanceSource rgbLuminanceSource = new RGBLuminanceSource(width,height,pixel);
-//            Log.d("readQR","con1");
             BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(rgbLuminanceSource));
-//            Log.d("readQR", "con2");
+
             QRCodeReader qrCodeReader = new QRCodeReader();
             com.google.zxing.Result result = qrCodeReader.decode(binaryBitmap);
-//            if(result.getNumBits() != 0){
-//            }
-//            else if(result.getNumBits() == 0){
-//            }
-//            else{
-//            }
+
+            if(result.getNumBits() != 0){
+                Log.d("FINISH", "readQR success");
+            }
+            else if(result.getNumBits() == 0){
+                Log.d("FAIL", "readQR failed");
+            }
+            else{
+                Log.d("404", "readQR error");
+            }
             return result.getText();
         } catch (Exception e) {
             return null;
@@ -182,12 +175,6 @@ public class YourService extends KiboRpcService {
         String getQRString = readQR(api.getBitmapNavCam());
         if (getQRString == null){
             Log.d("getQR: ","failed");
-//            readQR(api.getBitmapNavCam());
-//            if(getQRString != null) {
-//                sort(getQRString);
-//                api.sendDiscoveredQR(getQRString);
-//            }
-
         }else if(getQRString != null){
             try{
                 Log.d("getQR: ", getQRString);
@@ -199,7 +186,6 @@ public class YourService extends KiboRpcService {
         }
         return getQRString;
     }
-
 
     private void waiting() {
         try {
@@ -214,4 +200,3 @@ public class YourService extends KiboRpcService {
     }
 
 }
-
