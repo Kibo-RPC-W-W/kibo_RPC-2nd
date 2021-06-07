@@ -44,6 +44,7 @@ import gov.nasa.arc.astrobee.Kinematics;
 import gov.nasa.arc.astrobee.Result;
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
+import jp.jaxa.iss.kibo.rpc.api.KiboRpcApi;
 import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
 
 import static android.graphics.Bitmap.createBitmap;
@@ -69,9 +70,8 @@ public class YourService extends KiboRpcService {
 
         // write here your plan 1
         api.startMission();
-
         //move to point A
-        Point p1 = new Point(11.21f, -10f, 5.0f);
+        Point p1 = new Point(11.21, -10, 5.0f);
         Quaternion q1 = new Quaternion(0f, 0f, -0.707f, 0.71f);
         Log.d("START", "move to a");
         moveTo(p1, q1);
@@ -94,20 +94,18 @@ public class YourService extends KiboRpcService {
 
         try{
             t.join();
+            Log.d("FINISH", "getQR success");
         }catch(InterruptedException e){
 
         }
 
-        //get point A'
-        Log.d("FINISH", "getQR success");
-
         //to A'
-        ToA_.pattern2(a_, q, api);
+        pattern23456(a_, q);
         Log.d("IMU", api.getRobotKinematics().getOrientation().toString());
         Log.d("position", api.getRobotKinematics().getPosition().toString());
     }
 
-    private void moveTo(Point p, Quaternion q){
+    private void moveTo(Point p, Quaternion q) {
         Point output = null;
         Point robotPose = null;
         double x = 0, y = 0, z = 0;
@@ -115,7 +113,7 @@ public class YourService extends KiboRpcService {
         double kD = 0.001;
         double xo, yo, zo;
         double lx = 0, ly = 0, lz = 0;
-        do{
+        do {
             api.moveTo(p, q, true);
             robotPose = api.getTrustedRobotKinematics().getPosition();
             x = p.getX() - robotPose.getX();
@@ -125,29 +123,53 @@ public class YourService extends KiboRpcService {
             yo = p.getY() + y * kP + (ly - y) * kD;
             zo = p.getY() + z * kP + (lz - z) * kD;
             output = new Point(xo, yo, zo);
-            lx = x; ly = y; lz = z;
-        }while(x + y + z > 0.3);
+            lx = x;
+            ly = y;
+            lz = z;
+        } while (x + y + z > 0.3);
     }
 
-    public static String readQR(Bitmap bitmap) {
+    /**************************************************************************
+     *                        To A'
+     **************************************************************************/
+    public void pattern23456(Point a_, Quaternion q){
+        Point z = new Point(11.21, -9.8, a_.getZ());
+        api.moveTo(z, q, true);
+        api.moveTo(a_, q, true);
+    }
+    public void pattern178(Point a_, Quaternion q){
+        Point z = new Point(11.21f + 0.45f, -10f, a_.getZ());
+        api.moveTo(new Point(11.21f + 0.45f, -10f, 4.79f), q, true);
+        api.moveTo(z, q, true);
+        api.moveTo(a_, q, true);
 
+    }
+    public void endGame(){
+        Point b = new Point(10.6, -8.0, 4.5);
+        api.reportMissionCompletion();
+    }
+
+    /**************************************************************************
+     *                        read QR
+     **************************************************************************/
+    public static String readQR(Bitmap bitmap) {
         try {
             int width = bitmap.getWidth();
             int height = bitmap.getHeight();
             int[] pixel = new int[width * height];
             bitmap.getPixels(pixel,0,width,0,0,width,height);
             RGBLuminanceSource rgbLuminanceSource = new RGBLuminanceSource(width,height,pixel);
-            Log.d("readQR","con1");
+//            Log.d("readQR","con1");
             BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(rgbLuminanceSource));
-            Log.d("readQR", "con2");
+//            Log.d("readQR", "con2");
             QRCodeReader qrCodeReader = new QRCodeReader();
             com.google.zxing.Result result = qrCodeReader.decode(binaryBitmap);
-            if(result.getNumBits() != 0){
-            }
-            else if(result.getNumBits() == 0){
-            }
-            else{
-            }
+//            if(result.getNumBits() != 0){
+//            }
+//            else if(result.getNumBits() == 0){
+//            }
+//            else{
+//            }
             return result.getText();
         } catch (Exception e) {
             return null;
