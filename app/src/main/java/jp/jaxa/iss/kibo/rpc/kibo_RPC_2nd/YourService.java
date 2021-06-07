@@ -161,6 +161,7 @@ public class YourService extends KiboRpcService {
             try{
                 Log.d("getQR: ", getQRString);
                 sort(getQRString);
+                Log.d("Finished", ap + "," + ax + "," + ay + "," + az);
                 api.sendDiscoveredQR(getQRString);
             }catch (Exception e){
                 Log.e("getQR error: ","error");
