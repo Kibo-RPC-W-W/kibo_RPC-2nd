@@ -32,6 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -163,7 +164,10 @@ public class YourService extends KiboRpcService {
     //不推薦使用
     public static void QRReader(Bitmap bitmap) {
         MultiFormatReader formatReader = new MultiFormatReader();
-        //讀取指定的二維碼文件
+        Map<DecodeHintType, Object> hints = new HashMap<>();
+        hints.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
+        formatReader.setHints(hints);
+
         byte[] arr = bitmapToArray(bitmap);
         LuminanceSource source = new PlanarYUVLuminanceSource(arr, bitmap.getWidth(), bitmap.getHeight(), 0, 0, bitmap.getWidth(), bitmap.getHeight(), false);
 
