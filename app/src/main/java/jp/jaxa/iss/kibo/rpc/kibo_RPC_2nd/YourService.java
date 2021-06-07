@@ -57,13 +57,13 @@ import android.graphics.Bitmap;
  * A(11.21, -9.8, 4.79)
  */
 public class YourService extends KiboRpcService {
-    API ourAPI = new API(api);
-    static int pattern;
-    float test = 0;
 
     static Point a_ = null;
 
-    Quaternion q = new Quaternion();
+    Quaternion q = new Quaternion(0f, 0f, -0.707f, 0.707f);
+
+    int ap;
+    double ax, ay, az;
 
     @Override
     protected void runPlan1() {
@@ -88,33 +88,28 @@ public class YourService extends KiboRpcService {
         Log.d("FINISH", "getQR success");
 
         //to A'
-        pattern23456(a_, q);
+        if(ap >= 2 && ap <= 6){
+            pattern23456(a_, q);
+        }
+        else{
+            pattern178(a_, q);
+        }
         Log.d("IMU", api.getRobotKinematics().getOrientation().toString());
         Log.d("position", api.getRobotKinematics().getPosition().toString());
     }
 
 
     private void moveTo(Point p, Quaternion q){
-        Point output = null;
         Point robotPose = null;
         double x = 0, y = 0, z = 0;
-        double kP = 0.25;
-        double kD = 0.001;
-        double xo, yo, zo;
-        double lx = 0, ly = 0, lz = 0;
+
         do {
             api.moveTo(p, q, true);
             robotPose = api.getTrustedRobotKinematics().getPosition();
             x = p.getX() - robotPose.getX();
             y = p.getY() - robotPose.getY();
             z = p.getZ() - robotPose.getZ();
-            xo = p.getX() + x * kP + (lx - x) * kD;
-            yo = p.getY() + y * kP + (ly - y) * kD;
-            zo = p.getY() + z * kP + (lz - z) * kD;
-            output = new Point(xo, yo, zo);
-            lx = x;
-            ly = y;
-            lz = z;
+
         } while (x + y + z > 0.3);
     }
 
@@ -135,6 +130,7 @@ public class YourService extends KiboRpcService {
     }
     public void endGame(){
         Point b = new Point(10.6, -8.0, 4.5);
+        api.moveTo(b, q, true);
         api.reportMissionCompletion();
     }
 
@@ -175,10 +171,17 @@ public class YourService extends KiboRpcService {
         String getQRString = readQR(api.getBitmapNavCam());
         if (getQRString == null){
             Log.d("getQR: ","failed");
+            readQR(api.getBitmapNavCam());
+            if(getQRString != null) {
+                sort(getQRString);
+                Log.d("Finished", ap + "," + ax + "," + ay + "," + az);
+            }
+
         }else if(getQRString != null){
             try{
                 Log.d("getQR: ", getQRString);
                 sort(getQRString);
+                Log.d("Finished", ap + "," + ax + "," + ay + "," + az);
                 api.sendDiscoveredQR(getQRString);
             }catch (Exception e){
                 Log.e("getQR error: ","error");
@@ -187,7 +190,7 @@ public class YourService extends KiboRpcService {
         return getQRString;
     }
 
-    private void waiting() {
+    private void waiting(){
         try {
             Thread.sleep(200);
         }catch (Exception e){
@@ -196,7 +199,12 @@ public class YourService extends KiboRpcService {
     }
 
     private void sort(String qrcode) {
-        String[] split = qrcode.split("[\"{}:,pxyz]+");
+        String[] splt = qrcode.split("[\"{}:,pxyz]+");
+        ap = Integer.parseInt(splt[1]);
+        ax = Double.parseDouble(splt[2]);
+        ay = Double.parseDouble(splt[3]);
+        az = Double.parseDouble(splt[4]);
+        a_ = new Point(ax, ay, az);
     }
 
 }
