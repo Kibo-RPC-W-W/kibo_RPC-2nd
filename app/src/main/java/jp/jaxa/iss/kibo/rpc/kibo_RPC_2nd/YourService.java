@@ -4,7 +4,9 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.google.zxing.BinaryBitmap;
+import com.google.zxing.ChecksumException;
 import com.google.zxing.DecodeHintType;
+import com.google.zxing.FormatException;
 import com.google.zxing.LuminanceSource;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.NotFoundException;
@@ -167,10 +169,11 @@ public class YourService extends KiboRpcService {
 
     //不推薦使用
     public static void QRReader(Bitmap bitmap) {
-        MultiFormatReader formatReader = new MultiFormatReader();
-        Map<DecodeHintType, Object> hints = new HashMap<>();
-        hints.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
-        formatReader.setHints(hints);
+        Log.d("START", "QRReader");
+        QRCodeReader formatReader = new QRCodeReader();
+//        Map<DecodeHintType, Object> hints = new HashMap<>();
+//        hints.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
+//        formatReader.setHints(hints);
 
         int[] arr = bitmapToArray(bitmap);
         LuminanceSource source = new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), arr);
@@ -179,7 +182,7 @@ public class YourService extends KiboRpcService {
         com.google.zxing.Result qrResult = null;
         try {
             qrResult = formatReader.decode(bBitmap);
-        } catch (NotFoundException e) {
+        } catch (NotFoundException | ChecksumException | FormatException e) {
             e.printStackTrace();
         }
         //輸出相關的二維碼信息
