@@ -56,13 +56,13 @@ import android.graphics.Bitmap;
  * A(11.21, -9.8, 4.79)
  */
 public class YourService extends KiboRpcService {
-    API ourAPI = new API(api);
-    static int pattern;
-    float test = 0;
 
     static Point a_ = null;
 
     Quaternion q = new Quaternion();
+
+    int ap;
+    double ax, ay, az;
 
     @Override
     protected void runPlan1() {
@@ -150,11 +150,12 @@ public class YourService extends KiboRpcService {
         String getQRString = readQR(api.getBitmapNavCam());
         if (getQRString == null){
             Log.d("getQR: ","failed");
-//            readQR(api.getBitmapNavCam());
-//            if(getQRString != null) {
-//                sort(getQRString);
+            readQR(api.getBitmapNavCam());
+            if(getQRString != null) {
+                sort(getQRString);
+                Log.d("Finished", ap + "," + ax + "," + ay + "," + az);
 //                api.sendDiscoveredQR(getQRString);
-//            }
+            }
 
         }else if(getQRString != null){
             try{
@@ -169,7 +170,7 @@ public class YourService extends KiboRpcService {
     }
 
 
-    private void waiting() {
+    private void waiting(){
         try {
             Thread.sleep(200);
         }catch (Exception e){
@@ -178,7 +179,12 @@ public class YourService extends KiboRpcService {
     }
 
     private void sort(String qrcode) {
-        String[] split = qrcode.split("[\"{}:,pxyz]+");
+        String[] splt = qrcode.split("[\"{}:,pxyz]+");
+        ap = Integer.parseInt(splt[1]);
+        ax = Double.parseDouble(splt[2]);
+        ay = Double.parseDouble(splt[3]);
+        az = Double.parseDouble(splt[4]);
+
     }
 
 }
