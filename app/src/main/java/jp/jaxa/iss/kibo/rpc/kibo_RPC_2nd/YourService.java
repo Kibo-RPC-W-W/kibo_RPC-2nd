@@ -349,8 +349,8 @@ public class YourService extends KiboRpcService {
         moveTo(a_, q);
     }
     public void pattern178(Point a_, Quaternion q){
-        Point z = new Point(11.21f + 0.45f, -10f, a_.getZ());
-        moveTo(new Point(11.21f + 0.45f, -10f, 5f), q);
+        Point z = new Point(11.52f, -10f, a_.getZ());
+        moveTo(new Point(11.52f, -10f, 5f), q);
         moveTo(z, q);
         moveTo(a_, q);
 
