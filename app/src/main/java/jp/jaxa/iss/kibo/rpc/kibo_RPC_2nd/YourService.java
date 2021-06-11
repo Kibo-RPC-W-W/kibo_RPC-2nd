@@ -131,11 +131,16 @@ public class YourService extends KiboRpcService {
         for (int i = 0; i <= 8; i++)
         {
             int row , col ;
-            if(i < 3){row = 0;col = i;}
-            else if(i<6){row = 1;col = i-3;}
-            else{ row = 2;col = i-6;}
+            if(i < 3){
+                row = 0;col = i;
+            } else if(i<6){
+                row = 1;col = i-3;
+            } else{
+                row = 2;col = i-6;
+            }
             cam_Matrix.put(row, col, Nav_Intrinsics[0][i]);
         }
+        Log.d("Get Cam_Matrix[status]:","Acquired");
         return cam_Matrix;
     }
     private Mat getDist_coeff(){
@@ -146,6 +151,7 @@ public class YourService extends KiboRpcService {
         {
             dist_Coeff.put(0,i,Nav_Intrinsics[1][i]);
         }
+        Log.d("Get Dist_coeff[status]:","Acquired");
         return dist_Coeff;
 
     }
