@@ -16,6 +16,7 @@ import com.google.zxing.Reader;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.opencv.android.Utils;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.aruco.Aruco;
@@ -49,13 +50,7 @@ import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
 
 import static android.graphics.Bitmap.createBitmap;
 import android.graphics.Bitmap;
-/**
- * Class meant to handle commands from the Ground Data System and execute them in Astrobee
- */
 
-/**
- * A(11.21, -9.8, 4.79)
- */
 public class YourService extends KiboRpcService {
 
     static Point a_ = null;
@@ -136,11 +131,22 @@ public class YourService extends KiboRpcService {
         for (int i = 0; i <= 8; ++i)
         {
             int row , col ;
+
             if(i < 3){row = 0; col = i;}
             else if(i<6){row = 1;col = i-3;}
             else{ row = 2;col = i-6;}
+
+            if(i < 3){
+                row = 0;col = i;
+            } else if(i<6){
+                row = 1;col = i-3;
+            } else{
+                row = 2;col = i-6;
+            }
+
             cam_Matrix.put(row, col, Nav_Intrinsics[0][i]);
         }
+        Log.d("Get Cam_Matrix[status]:","Acquired");
         return cam_Matrix;
     }
     private Mat getDist_coeff(){
@@ -151,6 +157,7 @@ public class YourService extends KiboRpcService {
         {
             dist_Coeff.put(0,i,Nav_Intrinsics[1][i]);
         }
+        Log.d("Get Dist_coeff[status]:","Acquired");
         return dist_Coeff;
 
     }
@@ -254,16 +261,19 @@ public class YourService extends KiboRpcService {
         Mat dist_Coeff = getDist_coeff();
         Mat Nav_Cam_View = api.getMatNavCam();
         Mat ids = new Mat();
-        List<Mat> corners = new ArrayList<>();
+        List<Mat> corners = new ArrayList<Mat>();
         Dictionary AR_Tag_dict = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
 //                    get target position in view img
-
         Aruco.detectMarkers(Nav_Cam_View, AR_Tag_dict, corners, ids);
         //            needs if statement
-        if(corners.isEmpty()){
-            Log.d("AR[status]:", " Undetected");
-        }else{
+
+        if(!corners.isEmpty() && corners != null) {
             Log.d("AR[status]:", " Detected");
+            Log.d("AR[status]", corners.toString());
+            Log.d("AR[status]", corners.size() + " ");
+            Log.d("AR[status]", ids.dump());
+        }else{
+            Log.d("AR[status]:", "Detected");
         }
 
 //        aim relative to Nav_cam's point of view
@@ -272,16 +282,19 @@ public class YourService extends KiboRpcService {
         List<Mat> corners_sorted = new ArrayList<>();
 
         //            sort corners 1234
-        for(int i = 0; i<4; i++)
+        for(int i = 0; i < 4; ++i)
         {
             int id = (int)ids.get(0,i)[0];
 //            ids_sorted[id-1] = id;
             Mat vec = corners.get(i);
-            corners_sorted.add(id-1,vec);
+            corners_sorted.add(id-1, vec);
         }
+
+        Log.d("Corners_Sorted:", corners_sorted.toString());
 
 //        pose estimation
         Quaternion cam_orientation = api.getTrustedRobotKinematics().getOrientation();
+        Log.d("Current Orientation: ", cam_orientation.toString());
         float cam_qw = cam_orientation.getW();
         float cam_qx = cam_orientation.getX();
         float cam_qy = cam_orientation.getY();
@@ -304,12 +317,12 @@ public class YourService extends KiboRpcService {
 
         Mat rvecs = new Mat();
         Mat tvecs =new Mat();
-        Aruco.estimatePoseSingleMarkers(corners_sorted,(float)0.05,cam_Matrix,dist_Coeff, rvecs,tvecs );
+        Aruco.estimatePoseSingleMarkers(corners_sorted, (float)0.05, cam_Matrix, dist_Coeff, rvecs, tvecs);
 
-//        maybe
-        double[] p2 =  tvecs.get(0,1);
-        double[] p4 =  tvecs.get(0,3);
-        double[] target_vec_cam = get_midpoint(p2,p4);
+//        maybe , yep here
+        double[] p2 = tvecs.get(0, 1);
+        double[] p4 = tvecs.get(0, 3);
+        double[] target_vec_cam = get_midpoint(p2, p4);
 
 
         double[][] t_mat = new double[3][3];
@@ -317,22 +330,27 @@ public class YourService extends KiboRpcService {
         double[] target_vec_abs = multiply_mat_vec(t_mat, target_vec_cam);
 
 //        get theta between camZ and target_vec_abs
-        double[] angle_info = get_angle_info(cam_dir_k,target_vec_abs);
+        double[] angle_info = get_angle_info(cam_dir_k, target_vec_abs);
         double w = angle_info[0];
         double s = angle_info[1];
 
 //        cross camZ and target_vec_abs
         double[] Vec_A = new double[3];
-        crossProduct(cam_dir_k,target_vec_abs,Vec_A);
+        crossProduct(cam_dir_k, target_vec_abs, Vec_A);
         to_unit_vector(Vec_A);
 //        get quaternion from cross and theta
 
-        double x = s*Vec_A[0];
-        double y = s*Vec_A[1];
-        double z = s*Vec_A[2];
+        double x = s * Vec_A[0];
+        double y = s * Vec_A[1];
+        double z = s * Vec_A[2];
 
         Quaternion target_orientation = new Quaternion((float)x,(float)y,(float)z,(float)w);
         Log.d("Target", target_orientation.toString());
+        try {
+            Log.d("TARGET QUATERNION[status]:", String.format("%s", target_orientation.toString()));
+        }catch (Exception e){
+            Log.d("TARGET QUATERNION[status]:", e.toString());
+        }
 //        turn
         Point goal = new Point(0,0,0);
         api.relativeMoveTo(goal,target_orientation,true);
