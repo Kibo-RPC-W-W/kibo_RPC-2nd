@@ -16,6 +16,7 @@ import com.google.zxing.Reader;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.opencv.android.Utils;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.aruco.Aruco;
@@ -49,13 +50,7 @@ import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
 
 import static android.graphics.Bitmap.createBitmap;
 import android.graphics.Bitmap;
-/**
- * Class meant to handle commands from the Ground Data System and execute them in Astrobee
- */
 
-/**
- * A(11.21, -9.8, 4.79)
- */
 public class YourService extends KiboRpcService {
 
     static Point a_ = null;
@@ -259,13 +254,16 @@ public class YourService extends KiboRpcService {
         try
         {
             Aruco.detectMarkers(Nav_Cam_View, AR_Tag_dict, corners, ids);
-            //            needs if statement
-            Log.d("AR[status]:", " Detected");
+
+            if(!corners.isEmpty()) {
+                Log.d("AR[status]:", " Detected");
+            }
         }
         catch (Exception e)
         {
             Log.d("AR[status]:", " Undetected");
         }
+
 //        aim relative to Nav_cam's point of view
 
 //        int[] ids_sorted = new int[4];
@@ -280,8 +278,11 @@ public class YourService extends KiboRpcService {
             corners_sorted.add(id-1,vec);
         }
 
+        Log.d("Corners_Sorted:",corners_sorted.toString());
+
 //        pose estimation
         Quaternion cam_orientation = api.getTrustedRobotKinematics().getOrientation();
+        Log.d("Current Orientation: ",String.format("%s",cam_orientation.toString()));
         float cam_qw = cam_orientation.getW();
         float cam_qx = cam_orientation.getX();
         float cam_qy = cam_orientation.getY();
@@ -306,7 +307,7 @@ public class YourService extends KiboRpcService {
         Mat tvecs =new Mat();
         Aruco.estimatePoseSingleMarkers(corners_sorted,(float)0.05,cam_Matrix,dist_Coeff, rvecs,tvecs );
 
-//        maybe
+//        maybe , yep here
         double[] p2 =  tvecs.get(0,1);
         double[] p4 =  tvecs.get(0,3);
         double[] target_vec_cam = get_midpoint(p2,p4);
@@ -332,6 +333,11 @@ public class YourService extends KiboRpcService {
         double z = s*Vec_A[2];
 
         Quaternion target_orientation = new Quaternion((float)x,(float)y,(float)z,(float)w);
+        try {
+            Log.d("TARGET QUATERNION[status]:", String.format("%s", target_orientation.toString()));
+        }catch (Exception e){
+            Log.d("TARGET QUATERNION[status]:", e.toString());
+        }
 //        turn
         Point goal = new Point(0,0,0);
         api.relativeMoveTo(goal,target_orientation,true);
