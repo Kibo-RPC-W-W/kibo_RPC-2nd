@@ -110,9 +110,9 @@ public class YourService extends KiboRpcService {
         do {
             api.moveTo(p, q, true);
             robotPose = api.getTrustedRobotKinematics().getPosition();
-            x = p.getX() - robotPose.getX();
-            y = p.getY() - robotPose.getY();
-            z = p.getZ() - robotPose.getZ();
+            x = Math.abs(p.getX() - robotPose.getX());
+            y = Math.abs(p.getY() - robotPose.getY());
+            z = Math.abs(p.getZ() - robotPose.getZ());
 
         } while (x + y + z > 0.3);
     }
@@ -124,7 +124,7 @@ public class YourService extends KiboRpcService {
     {
         Mat dist_Coeff = getDist_coeff();
         Mat cam_Matrix = getCamIntrinsics();
-        Mat output = new Mat();
+        Mat output = new Mat(src.rows(), src.cols(), src.type());
 
         Imgproc.undistort(src, output, cam_Matrix, dist_Coeff);
         return output;
@@ -133,10 +133,10 @@ public class YourService extends KiboRpcService {
         //        cam_matrix arr to mat
         Mat cam_Matrix = new Mat();
         double [][] Nav_Intrinsics = api.getNavCamIntrinsics();
-        for (int i = 0; i <= 8; i++)
+        for (int i = 0; i <= 8; ++i)
         {
             int row , col ;
-            if(i < 3){row = 0;col = i;}
+            if(i < 3){row = 0; col = i;}
             else if(i<6){row = 1;col = i-3;}
             else{ row = 2;col = i-6;}
             cam_Matrix.put(row, col, Nav_Intrinsics[0][i]);
@@ -249,23 +249,23 @@ public class YourService extends KiboRpcService {
     public void aimLaser()
     {
 //        remember to put in loop
-        Mat Nav_Cam_View = undistortImg(api.getMatNavCam());
+//        Mat Nav_Cam_View = undistortImg(api.getMatNavCam());
         Mat cam_Matrix = getCamIntrinsics();
         Mat dist_Coeff = getDist_coeff();
+        Mat Nav_Cam_View = api.getMatNavCam();
         Mat ids = new Mat();
         List<Mat> corners = new ArrayList<>();
         Dictionary AR_Tag_dict = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
 //                    get target position in view img
-        try
-        {
-            Aruco.detectMarkers(Nav_Cam_View, AR_Tag_dict, corners, ids);
-            //            needs if statement
+
+        Aruco.detectMarkers(Nav_Cam_View, AR_Tag_dict, corners, ids);
+        //            needs if statement
+        if(corners.isEmpty()){
+            Log.d("AR[status]:", " Undetected");
+        }else{
             Log.d("AR[status]:", " Detected");
         }
-        catch (Exception e)
-        {
-            Log.d("AR[status]:", " Undetected");
-        }
+
 //        aim relative to Nav_cam's point of view
 
 //        int[] ids_sorted = new int[4];
@@ -332,6 +332,7 @@ public class YourService extends KiboRpcService {
         double z = s*Vec_A[2];
 
         Quaternion target_orientation = new Quaternion((float)x,(float)y,(float)z,(float)w);
+        Log.d("Target", target_orientation.toString());
 //        turn
         Point goal = new Point(0,0,0);
         api.relativeMoveTo(goal,target_orientation,true);
@@ -344,14 +345,14 @@ public class YourService extends KiboRpcService {
      **************************************************************************/
     public void pattern23456(Point a_, Quaternion q){
         Point z = new Point(11.21, -9.8, a_.getZ());
-        api.moveTo(z, q, true);
-        api.moveTo(a_, q, true);
+        moveTo(z, q);
+        moveTo(a_, q);
     }
     public void pattern178(Point a_, Quaternion q){
         Point z = new Point(11.21f + 0.45f, -10f, a_.getZ());
-        api.moveTo(new Point(11.21f + 0.45f, -10f, 4.79f), q, true);
-        api.moveTo(z, q, true);
-        api.moveTo(a_, q, true);
+        moveTo(new Point(11.21f + 0.45f, -10f, 5f), q);
+        moveTo(z, q);
+        moveTo(a_, q);
 
     }
     public void endGame(){
@@ -394,15 +395,16 @@ public class YourService extends KiboRpcService {
     private String getQR(){
         Log.d("getQR: ","called");
         waiting();
-        String getQRString = readQR(api.getBitmapNavCam());
+        int count = 0;
+        String getQRString = null;
+
+        do{
+            getQRString = readQR(api.getBitmapNavCam());
+            ++count;
+        }while(getQRString == null && count < 3);
+
         if (getQRString == null){
             Log.d("getQR: ","failed");
-            readQR(api.getBitmapNavCam());
-            if(getQRString != null) {
-                sort(getQRString);
-                Log.d("Finished", ap + "," + ax + "," + ay + "," + az);
-            }
-
         }else if(getQRString != null){
             try{
                 Log.d("getQR: ", getQRString);

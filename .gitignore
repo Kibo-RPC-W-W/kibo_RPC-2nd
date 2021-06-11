@@ -2,10 +2,7 @@
 *class
 /app/build/
 
-.idea
-.txt
 
 ### Gradle ###
-.gradle
-/build/
+
 local.properties

@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\com.android.support.constraint\constraint-layout-solver\1.0.2\b9cd8fc6bd15cb915735d34535db30ece0c44603\constraint-layout-solver-1.0.2.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="b9cd8fc6bd15cb915735d34535db30ece0c44603">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\constraint-layout-solver-1.0.2_899f2e59edce8dedd67bf0c8614720e6aad08fe4\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.ros.rosjava_messages\diagnostic_msgs\1.11.9\cd26b0f3326102721034f03734ba624798bd771d\diagnostic_msgs-1.11.9.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="cd26b0f3326102721034f03734ba624798bd771d">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\diagnostic_msgs-1.11.9_d38af2b09603e082d8aef07baeeb0b8c56eefdb4\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\4e83f1ab1a45a6e6dbd0c1b5e93bb89704d082dc\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="b62fdc4cfef174c1e456014195c83fa7de7dc041">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_ac29c0a1448b41d41a5dddf122839569a51c601d\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.ros.rosjava_core\apache_xmlrpc_common\0.2.2\d136f4ee685835a527285f97cef4df3958801371\apache_xmlrpc_common-0.2.2.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="d136f4ee685835a527285f97cef4df3958801371">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\apache_xmlrpc_common-0.2.2_96a5b833232c019ff2d9efe54c5243128f7365af\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\35b9210f3eabba5f2968114be0429147a944eb25\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="7efef32744ca4a436492d5cf28c08698cc2af256">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_7a88feb3920b6d1e64e993cb587e4a56114b3fa3\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.ros.rosjava_messages\actionlib_msgs\1.12.7\c79d70ff4d27a66234a3a3061dc3e69f9ef3d64e\actionlib_msgs-1.12.7.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="c79d70ff4d27a66234a3a3061dc3e69f9ef3d64e">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\actionlib_msgs-1.12.7_4312c76e691919fecf2837ba42dd584be643a840\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\542b5581edc642d74a4763225bbd7dc120f54e0e\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="d7c42c80f6509b9ea4db28ca7859ffae08ec5741">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_f967c45cb43d36d102eb5347c2c69bcc84a903b0\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\io.netty\netty\3.5.2.Final\e6fb74a0699abe108969b2ec1f269391169a0426\netty-3.5.2.Final.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="e6fb74a0699abe108969b2ec1f269391169a0426">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\netty-3.5.2.Final_70afe62709527c0cf734efde63f30f2476fa0446\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\2ef7ef76313ec5344b7db23d4386ccea1282ada7\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="ab7182fb51c5ebc9287976b9b7cf423af6872059">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_0c7c916a789231420ae37fc8fe0f3e436d937210\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\com.google.zxing\core\3.3.0\73c49077166faa4c3c0059c5f583d1d7bd1475fe\core-3.3.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="73c49077166faa4c3c0059c5f583d1d7bd1475fe">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\core-3.3.0_0afcb8cafb69c21a63173220e3864ae07ccaf77c\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.ros.rosjava_core\rosjava\0.2.2\78fe3ddfa484f71012f33b120c4926c8a7626506\rosjava-0.2.2.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="78fe3ddfa484f71012f33b120c4926c8a7626506">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\rosjava-0.2.2_59034f15cda4d48b2083de997c349846cea51235\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.ros.rosjava_messages\geometry_msgs\1.12.7\cd8febdeda479787bf95ad715853e1730f88a0be\geometry_msgs-1.12.7.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="cd8febdeda479787bf95ad715853e1730f88a0be">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\geometry_msgs-1.12.7_22f44c6a2e085133dff6199d98f6f1ba0d34d1ec\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\04677a63be3e53ec707de25bcd662ee0280d0fe2\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="6f4138a4e065826cb044d49faea4cfd7191773d1">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_2f0f0287fd332ed70b6327e66aa80ccd2120dc9c\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\android.arch.lifecycle\common\1.0.0\e414a4cb28434e25c4f6aa71426eb20cf4874ae9\common-1.0.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="e414a4cb28434e25c4f6aa71426eb20cf4874ae9">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\common-1.0.0_043dd88c76ae7341d68323c56a65f4e5736546a3\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.apache.commons\com.springsource.org.apache.commons.httpclient\3.1.0\c493a925a091ac3d8f449d9265fe12482dabb2a7\com.springsource.org.apache.commons.httpclient-3.1.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="c493a925a091ac3d8f449d9265fe12482dabb2a7">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.springsource.org.apache.commons.httpclient-3.1.0_746a51d034f98915a8c88986160bafe6e0e61eba\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\bc81b22762c736edfed018cf76f304318133df29\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="f428e2fbc9ed0b297e3a3f420e51e6982f66822d">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_48283111b2f7f51309020aadb5c9274eac43564f\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\35ffbd0494979b5f8b3c444a6d79c6eb3cee4916\output\jars\libs\ff_msgs-0.0.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="51d67762d9e1fd4a5e9c715bbfbced78658dddb6">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\ff_msgs-0.0.0_227ad079a152079d813b4cf8bdc7cf286db294ce\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\com.google.guava\guava\12.0\5bc66dd95b79db1e437eb08adba124a3e4088dc0\guava-12.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="5bc66dd95b79db1e437eb08adba124a3e4088dc0">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\guava-12.0_ca5b3f53cf005731ecf6771873343cf81979fb05\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\b05e2304fd288c84e8ed801410f2846fd38b96d2\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="77e3f210322743390ab44e667cc8988ba5d9433b">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_71212422053b9b6083ac37eea2a481872d8382b8\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\35ffbd0494979b5f8b3c444a6d79c6eb3cee4916\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="72fd8dff2fe2354cfaca363f3963f3d67fd1febe">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_e3e7c37b8b37b1794264676950513ab93bc7788c\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.apache.commons\com.springsource.org.apache.commons.logging\1.1.1\7657caf2c78e1d79c74d36f2ae128a115f7cc180\com.springsource.org.apache.commons.logging-1.1.1.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="7657caf2c78e1d79c74d36f2ae128a115f7cc180">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.springsource.org.apache.commons.logging-1.1.1_46198302a1428cbddf33a3a738c934b24a44bb9e\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.ros.rosjava_messages\std_msgs\0.5.11\aa060cc6457746034a82e10cff743786cea7e9e9\std_msgs-0.5.11.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="aa060cc6457746034a82e10cff743786cea7e9e9">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\std_msgs-0.5.11_80cc51c6f427acbfb56228aa4dc6d82b8749b796\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\com.google.code.findbugs\jsr305\1.3.9\40719ea6961c0cb6afaeb6a921eaa1f6afd4cfdf\jsr305-1.3.9.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="40719ea6961c0cb6afaeb6a921eaa1f6afd4cfdf">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\jsr305-1.3.9_ea4ef8bcef5e266ddc1e0c0931ba57ea629467d5\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.ros.rosjava_core\apache_xmlrpc_client\0.2.2\47cfb7ff62beeab0774ea18f3a9b47e0c7f8a7fe\apache_xmlrpc_client-0.2.2.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="47cfb7ff62beeab0774ea18f3a9b47e0c7f8a7fe">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\apache_xmlrpc_client-0.2.2_ebc40fe8d7a8454bcd4e494a20e6c19682dd5723\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\commons-pool\commons-pool\1.6\4572d589699f09d866a226a14b7f4323c6d8f040\commons-pool-1.6.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="4572d589699f09d866a226a14b7f4323c6d8f040">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\commons-pool-1.6_ce2ae7c598577a54ae8ae0008165779ac061ef2a\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\22176bbd0aafa63067fb82ab016cee42b270bd3f\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="508f50705b4fde51a16259f29c854201a3044516">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_1e81037ded3b865065295aa418453bbcaed89536\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\dnsjava\dnsjava\2.1.1\5708df81cf6dbff545695f0be6380b7bbc85accc\dnsjava-2.1.1.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="5708df81cf6dbff545695f0be6380b7bbc85accc">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\dnsjava-2.1.1_bf0bac50e4fd1aa3ac629b10403c91f3e141fbd1\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\28cc4fb917db6b6f576e3577954fe2c18d3a62ad\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="44ee06abb66da30f5855e6bf54574e64cdcd982a">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_c7d272bb9596817610e1d31eb738326f04925e2e\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\addb51c5d63cb7c2ec29ccee2c54b65a58b44f81\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="40392f30a601db5675cdf18192aab013d6fee6ec">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_a86ef39d47953aa38f3dfe5548f52ff467c7683c\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\45600363948cfebd8cb822201e8afcb5e2e4bcb9\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="233f60a165ae622c8b36731502ebbda0f65e1930">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_1af317f8229d7a49defaaf81467ea07f3cf8f30f\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.ros.rosjava_messages\nav_msgs\1.11.9\92d5ef2ea3b47d61cbda430e576b54b493cbd229\nav_msgs-1.11.9.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="92d5ef2ea3b47d61cbda430e576b54b493cbd229">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\nav_msgs-1.11.9_1a2e4cd5592de5513b2bd6c53462764892d4e0ab\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\35ffbd0494979b5f8b3c444a6d79c6eb3cee4916\output\jars\libs\ros-1.0-SNAPSHOT.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="a572c1afbdb69a1fa3f641c662eade8ed245bc2c">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\ros-1.0-SNAPSHOT_5d6c9a13206d16cb044c5844163017a62941399b\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.ros.rosjava_bootstrap\message_generation\0.3.3\b599cb8535d39e8bd9066b6b1b4704010e6f3e3\message_generation-0.3.3.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="0b599cb8535d39e8bd9066b6b1b4704010e6f3e3">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\message_generation-0.3.3_8334905ea64f3ba8ac52eb926f46819a9d72aa26\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\0cf51ae2e61a7282fe62135c4b0327db063ee2be\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="bdbaec37a1cbd09bb11f80b7e2ecb408fd843fd0">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_964441c234e379adaa1814c666aa89194def7a90\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.ros.rosjava_bootstrap\gradle_plugins\0.3.3\bec608dad46e6910fe39e97d8d5af0daf0902fc2\gradle_plugins-0.3.3.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="bec608dad46e6910fe39e97d8d5af0daf0902fc2">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\gradle_plugins-0.3.3_4e4e0346e7876a8ddc02d1ff3b7e8349ffba3055\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\android.arch.core\common\1.0.0\a2d487452376193fc8c103dd2b9bd5f2b1b44563\common-1.0.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="a2d487452376193fc8c103dd2b9bd5f2b1b44563">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\common-1.0.0_4fc159f77277299c5297e4362f32a7d16a233d82\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.apache.commons\com.springsource.org.apache.commons.net\2.0.0\3e78766072ff5a5cf3f5431d973c430c94ec612\com.springsource.org.apache.commons.net-2.0.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="03e78766072ff5a5cf3f5431d973c430c94ec612">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.springsource.org.apache.commons.net-2.0.0_59b9c526976fadeaea4f5bf14b636e1aae669174\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.apache.ws.commons\ws-commons-util\1.0.1\126e80ff798fece634bc94e61f8be8a8da00be60\ws-commons-util-1.0.1.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="126e80ff798fece634bc94e61f8be8a8da00be60">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\ws-commons-util-1.0.1_dd75f3fa93200dfd516b0b76ede876ea0db407a8\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.ros.rosjava_messages\tf2_msgs\0.5.20\e3a5bdf7d6d68b7f5ebdb58d93b484b70d6355a8\tf2_msgs-0.5.20.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="e3a5bdf7d6d68b7f5ebdb58d93b484b70d6355a8">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\tf2_msgs-0.5.20_91a73b4db5ef1e798ebe3f5b82464957b111d875\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\e487e12e34dbceb6370612ac6e9d7e9ab7e9ecf9\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="f97cf85b0fe70d37a705111dafa6b1b418ea1650">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_554ec84f0ddfbe1b2a218ee0324c77e956436677\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\com.android.support\support-annotations\26.1.0\814258103cf26a15fcc26ecce35f5b7d24b73f8\support-annotations-26.1.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="0814258103cf26a15fcc26ecce35f5b7d24b73f8">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\support-annotations-26.1.0_e4e26add61811d1235659b76b8eb7d64713b85f4\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.ros.rosjava_messages\rosgraph_msgs\1.11.2\a4bb7847cbec4a0968a17f2b86ab8f9971c1ffd1\rosgraph_msgs-1.11.2.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="a4bb7847cbec4a0968a17f2b86ab8f9971c1ffd1">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\rosgraph_msgs-1.11.2_a83090d7da5e525206ac77fd9614a56661e1fc5d\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.ros.rosjava_messages\sensor_msgs\1.11.9\410c5603b38b55a829f34c7b366ebed106cf0c7d\sensor_msgs-1.11.9.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="410c5603b38b55a829f34c7b366ebed106cf0c7d">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\sensor_msgs-1.11.9_cefb3821c81b120d57105f2eaadd733c7865fcdc\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.apache.commons\com.springsource.org.apache.commons.lang\2.4.0\686e3713650c8e3a5d98723b4d3e239586bf9822\com.springsource.org.apache.commons.lang-2.4.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="686e3713650c8e3a5d98723b4d3e239586bf9822">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.springsource.org.apache.commons.lang-2.4.0_7303771214efe1bb268805bec12244705a613528\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.apache.commons\com.springsource.org.apache.commons.io\1.4.0\51097cd000ec88214ff181c9f059947de1cf4a35\com.springsource.org.apache.commons.io-1.4.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="51097cd000ec88214ff181c9f059947de1cf4a35">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.springsource.org.apache.commons.io-1.4.0_e03bd596a64fece0a5eb59c15956915119d5aaa9\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.apache.commons\com.springsource.org.apache.commons.codec\1.3.0\a7c156ef67bdc69ae36a9c70adf7b8ca2633132c\com.springsource.org.apache.commons.codec-1.3.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="a7c156ef67bdc69ae36a9c70adf7b8ca2633132c">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.springsource.org.apache.commons.codec-1.3.0_476d318d473bb75e536626c8028041734057b464\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.ros.rosjava_messages\rosjava_test_msgs\0.2.1\e14026224ba364d49f90e204fd30ee91077602b8\rosjava_test_msgs-0.2.1.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="e14026224ba364d49f90e204fd30ee91077602b8">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\rosjava_test_msgs-0.2.1_06b2790a20003b8a115b18d1a83154539f86f9ed\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\692a6ba9dc3ac4280562525f140db83ebb62e32b\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="1da33e32ab8494d557dfb2f3c3f8e29fdc5d98b7">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_3767425fbf49114d67c0db88302efd25034eaa96\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\144e0a9e4b6181351908f554bd37d430330baae5\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="2442771a5590dd4eb4bce00c2e9dca9e22e4c963">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_ba47bff095e0eb254583f23f46b6016b1e57a907\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\35ffbd0494979b5f8b3c444a6d79c6eb3cee4916\output\jars\libs\api-1.0-SNAPSHOT.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="d0c375d9be8682ad66b1dcc36f23e7042ebab943">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\api-1.0-SNAPSHOT_b4a377fe29c828494bad50d94c276bc236d2c8c8\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.gradle\caches\modules-2\files-2.1\org.ros.rosjava_core\apache_xmlrpc_server\0.2.2\c1a4054f1e7f5343deb216bb4de19c1d0e1abb80\apache_xmlrpc_server-0.2.2.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="c1a4054f1e7f5343deb216bb4de19c1d0e1abb80">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\apache_xmlrpc_server-0.2.2_f927103492bd3d3799f8dc2784b44e745a55c38d\classes.dex" />
+    </item>
+
+</items>
