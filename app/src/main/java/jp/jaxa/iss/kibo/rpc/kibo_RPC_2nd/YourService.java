@@ -65,6 +65,7 @@ public class YourService extends KiboRpcService {
 
         // write here your plan 1
         api.startMission();
+        Log.d("Info count/priority", Thread.activeCount() + " " + Thread.currentThread().getPriority());
         //move to point A
         Point p1 = new Point(11.21, -10, 5.0f);
         Quaternion q1 = new Quaternion(0f, 0f, -0.707f, 0.71f);
@@ -103,7 +104,7 @@ public class YourService extends KiboRpcService {
         double x = 0, y = 0, z = 0;
 
         do {
-            api.moveTo(p, q, true);
+            api.moveTo(p, q, false);
             robotPose = api.getTrustedRobotKinematics().getPosition();
             x = Math.abs(p.getX() - robotPose.getX());
             y = Math.abs(p.getY() - robotPose.getY());
@@ -267,7 +268,7 @@ public class YourService extends KiboRpcService {
         Aruco.detectMarkers(Nav_Cam_View, AR_Tag_dict, corners, ids);
         //            needs if statement
 
-        if(!corners.isEmpty() && corners != null) {
+        if(corners != null && !corners.isEmpty()) {
             Log.d("AR[status]:", " Detected");
             Log.d("AR[status]", corners.toString());
             Log.d("AR[status]", corners.size() + " ");
@@ -279,15 +280,20 @@ public class YourService extends KiboRpcService {
 //        aim relative to Nav_cam's point of view
 
 //        int[] ids_sorted = new int[4];
-        List<Mat> corners_sorted = new ArrayList<>();
-
+//        List<Mat> corners_sorted = new ArrayList<Mat>();
+        Mat[] corners_sorted = new Mat[4];
         //            sort corners 1234
         for(int i = 0; i < 4; ++i)
         {
-            int id = (int)ids.get(0,i)[0];
+            int id = (int)ids.get(i, 0)[0];
+//            Log.d("Debug", "1");
 //            ids_sorted[id-1] = id;
             Mat vec = corners.get(i);
-            corners_sorted.add(id-1, vec);
+//            Log.d("Debug", "2");
+
+            corners_sorted[id - 1] = vec;
+//            Log.d("Debug", "3");
+
         }
 
         Log.d("Corners_Sorted:", corners_sorted.toString());
@@ -317,9 +323,11 @@ public class YourService extends KiboRpcService {
 
         Mat rvecs = new Mat();
         Mat tvecs =new Mat();
-        Aruco.estimatePoseSingleMarkers(corners_sorted, (float)0.05, cam_Matrix, dist_Coeff, rvecs, tvecs);
-
-//        maybe , yep here
+        Mat _obj = new Mat();
+        Log.d("AR[status]", "start estimate");
+        Aruco.estimatePoseSingleMarkers(Arrays.asList(corners_sorted), 0.05f, cam_Matrix, dist_Coeff, rvecs, tvecs, _obj);
+        Log.d("AR[status]", "end estimate");
+//        maybe, yep here
         double[] p2 = tvecs.get(0, 1);
         double[] p4 = tvecs.get(0, 3);
         double[] target_vec_cam = get_midpoint(p2, p4);
@@ -423,15 +431,13 @@ public class YourService extends KiboRpcService {
 
         if (getQRString == null){
             Log.d("getQR: ","failed");
+
         }else if(getQRString != null){
-            try{
-                Log.d("getQR: ", getQRString);
-                sort(getQRString);
-                Log.d("Finished", ap + "," + ax + "," + ay + "," + az);
-                api.sendDiscoveredQR(getQRString);
-            }catch (Exception e){
-                Log.e("getQR error: ","error");
-            }
+            Log.d("getQR: ", getQRString);
+            sort(getQRString);
+            Log.d("Finished", ap + "," + ax + "," + ay + "," + az);
+            api.sendDiscoveredQR(getQRString);
+
         }
         return getQRString;
     }
