@@ -254,6 +254,20 @@ public class YourService extends KiboRpcService {
         return info;
     }
 
+    public Quaternion Qua_multiply(Quaternion Qa, Quaternion Qb)
+    {
+
+        float w = Qa.getW() * Qb.getW() - Qa.getX() * Qb.getX() - Qa.getY() * Qb.getY() - Qa.getZ()* Qb.getZ();
+        float x = Qa.getW() * Qb.getX() + Qa.getX() * Qb.getW() + Qa.getY() * Qb.getZ() - Qa.getZ()* Qb.getY();
+        float y = Qa.getW() * Qb.getY() - Qa.getX() * Qb.getZ() + Qa.getY() * Qb.getW() + Qa.getZ()* Qb.getX();
+        float z = Qa.getW() * Qb.getZ() + Qa.getX() * Qb.getY() - Qa.getY() * Qb.getX() + Qa.getZ()* Qb.getW();
+
+        Quaternion Qc = new Quaternion(x, y, z, w);
+
+        return Qc;
+
+    }
+
     public void aimLaser()
     {
 //        remember to put in loop
@@ -352,8 +366,11 @@ public class YourService extends KiboRpcService {
         double y = s * Vec_A[1];
         double z = s * Vec_A[2];
 
-        Quaternion target_orientation = new Quaternion((float)x,(float)y,(float)z,(float)w);
-        Log.d("Target", target_orientation.toString());
+
+        Quaternion relative_target_orientation = new Quaternion((float)x,(float)y,(float)z,(float)w);
+//        Log.d("Target", target_orientation.toString());
+        Quaternion target_orientation = Qua_multiply(cam_orientation,relative_target_orientation);
+//        target_orientation = cam_orientation  relative_target_orientation;
         try {
             Log.d("TARGET QUATERNION[status]:", String.format("%s", target_orientation.toString()));
         }catch (Exception e){
