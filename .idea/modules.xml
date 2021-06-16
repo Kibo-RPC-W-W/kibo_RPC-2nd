@@ -2,10 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/DefaultApk.iml" filepath="$PROJECT_DIR$/.idea/modules/DefaultApk.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/DefaultApk.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/DefaultApk.app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/guest_science_library/DefaultApk.guest_science_library.iml" filepath="$PROJECT_DIR$/.idea/modules/guest_science_library/DefaultApk.guest_science_library.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/kibo_rpc_api/DefaultApk.kibo_rpc_api.iml" filepath="$PROJECT_DIR$/.idea/modules/kibo_rpc_api/DefaultApk.kibo_rpc_api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/guest_science_library/guest_science_library.iml" filepath="$PROJECT_DIR$/guest_science_library/guest_science_library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/kibo_RPC-2nd_newnew.iml" filepath="$PROJECT_DIR$/kibo_RPC-2nd_newnew.iml" />
+      <module fileurl="file://$PROJECT_DIR$/kibo_rpc_api/kibo_rpc_api.iml" filepath="$PROJECT_DIR$/kibo_rpc_api/kibo_rpc_api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/openCVLibrary3410/openCVLibrary3410.iml" filepath="$PROJECT_DIR$/openCVLibrary3410/openCVLibrary3410.iml" />
     </modules>
   </component>
 </project>

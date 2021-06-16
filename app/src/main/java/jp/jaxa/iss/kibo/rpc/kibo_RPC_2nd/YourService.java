@@ -133,10 +133,6 @@ public class YourService extends KiboRpcService {
         {
             int row , col ;
 
-            if(i < 3){row = 0; col = i;}
-            else if(i<6){row = 1;col = i-3;}
-            else{ row = 2;col = i-6;}
-
             if(i < 3){
                 row = 0;col = i;
             } else if(i<6){
@@ -147,7 +143,11 @@ public class YourService extends KiboRpcService {
 
             cam_Matrix.put(row, col, Nav_Intrinsics[0][i]);
         }
-        Log.d("Get Cam_Matrix[status]:","Acquired");
+        if(!cam_Matrix.empty()) {
+            Log.d("Get Cam_Matrix[status]:", "Acquired");
+        }else{
+            Log.d("Get Cam_Matrix[status]:", "Not Acquired");
+        }
         return cam_Matrix;
     }
     private Mat getDist_coeff(){
@@ -262,7 +262,7 @@ public class YourService extends KiboRpcService {
         Mat dist_Coeff = getDist_coeff();
         Mat Nav_Cam_View = api.getMatNavCam();
         Mat ids = new Mat();
-        List<Mat> corners = new ArrayList<Mat>();
+        List<Mat> corners = new ArrayList<>();
         Dictionary AR_Tag_dict = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
 //                    get target position in view img
         Aruco.detectMarkers(Nav_Cam_View, AR_Tag_dict, corners, ids);
@@ -323,9 +323,9 @@ public class YourService extends KiboRpcService {
 
         Mat rvecs = new Mat();
         Mat tvecs =new Mat();
-        Mat _obj = new Mat();
+//        Mat _obj = new Mat();
         Log.d("AR[status]", "start estimate");
-        Aruco.estimatePoseSingleMarkers(Arrays.asList(corners_sorted), 0.05f, cam_Matrix, dist_Coeff, rvecs, tvecs, _obj);
+        Aruco.estimatePoseSingleMarkers(Arrays.asList(corners_sorted), 0.05f, cam_Matrix, dist_Coeff, rvecs, tvecs);
         Log.d("AR[status]", "end estimate");
 //        maybe, yep here
         double[] p2 = tvecs.get(0, 1);
