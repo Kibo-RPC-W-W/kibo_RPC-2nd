@@ -263,7 +263,6 @@ public class YourService extends KiboRpcService {
         float z = Qa.getW() * Qb.getZ() + Qa.getX() * Qb.getY() - Qa.getY() * Qb.getX() + Qa.getZ()* Qb.getW();
 
         Quaternion Qc = new Quaternion(x, y, z, w);
-
         return Qc;
 
     }
@@ -282,7 +281,7 @@ public class YourService extends KiboRpcService {
         Aruco.detectMarkers(Nav_Cam_View, AR_Tag_dict, corners, ids);
         //            needs if statement
 
-        if(corners != null && !corners.isEmpty()) {
+        if(!corners.isEmpty()) {
             Log.d("AR[status]:", " Detected");
             Log.d("AR[status]", corners.toString());
             Log.d("AR[status]", corners.size() + " ");
