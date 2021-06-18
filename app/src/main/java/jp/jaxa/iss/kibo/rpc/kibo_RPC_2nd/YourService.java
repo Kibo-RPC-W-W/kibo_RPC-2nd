@@ -128,7 +128,7 @@ public class YourService extends KiboRpcService {
     }
     private Mat getCamIntrinsics(){
         //        cam_matrix arr to mat
-        Mat cam_Matrix = new Mat();
+        Mat cam_Matrix = new Mat(1,8,CvType.CV_64FC(1));
         double [][] Nav_Intrinsics = api.getNavCamIntrinsics();
         for (int i = 0; i <= 8; ++i)
         {
@@ -154,7 +154,7 @@ public class YourService extends KiboRpcService {
     private Mat getDist_coeff(){
         //         dat coefficient arr to mat
         double [][] Nav_Intrinsics = api.getNavCamIntrinsics();
-        Mat dist_Coeff = new Mat();
+        Mat dist_Coeff = new Mat(1,4,CvType.CV_64FC(1));
         for(int i = 0; i<=4 ;i++)
         {
             dist_Coeff.put(0,i,Nav_Intrinsics[1][i]);
@@ -271,10 +271,10 @@ public class YourService extends KiboRpcService {
     public void aimLaser()
     {
 //        remember to put in loop
-//        Mat Nav_Cam_View = undistortImg(api.getMatNavCam());
+        Mat Nav_Cam_View = undistortImg(api.getMatNavCam());
         Mat cam_Matrix = getCamIntrinsics();
         Mat dist_Coeff = getDist_coeff();
-        Mat Nav_Cam_View = api.getMatNavCam();
+//        Mat Nav_Cam_View = api.getMatNavCam();
         Mat ids = new Mat();
         List<Mat> corners = new ArrayList<>();
         Dictionary AR_Tag_dict = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
