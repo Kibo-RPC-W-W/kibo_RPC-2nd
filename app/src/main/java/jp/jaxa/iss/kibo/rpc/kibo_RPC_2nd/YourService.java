@@ -23,6 +23,7 @@ import org.opencv.aruco.Aruco;
 import org.opencv.aruco.DetectorParameters;
 import org.opencv.aruco.Dictionary;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -334,15 +335,21 @@ public class YourService extends KiboRpcService {
         to_unit_vector(cam_dir_j);
         to_unit_vector(cam_dir_k);
 
-        Mat rvecs = new Mat();
-        Mat tvecs =new Mat();
+        Mat rvecs = new Mat(1,3, CvType.CV_64FC(1));
+        Mat tvecs =new Mat(1,3, CvType.CV_64FC(1));
 //        Mat _obj = new Mat();
         Log.d("AR[status]", "start estimate");
         Aruco.estimatePoseSingleMarkers(Arrays.asList(corners_sorted), 0.05f, cam_Matrix, dist_Coeff, rvecs, tvecs);
         Log.d("AR[status]", "end estimate");
 //        maybe, yep here
-        double[] p2 = tvecs.get(0, 1);
-        double[] p4 = tvecs.get(0, 3);
+        double[] p2 = new double[3];
+        p2[0] = tvecs.get(1, 0)[0];
+        p2[1] = tvecs.get(1, 1)[0];
+        p2[2] = tvecs.get(1, 2)[0];
+        double[] p4 = new double[3];
+        p4[0] = tvecs.get(3, 0)[0];
+        p4[1] = tvecs.get(3, 1)[0];
+        p4[2] = tvecs.get(3, 2)[0];
         double[] target_vec_cam = get_midpoint(p2, p4);
 
 
