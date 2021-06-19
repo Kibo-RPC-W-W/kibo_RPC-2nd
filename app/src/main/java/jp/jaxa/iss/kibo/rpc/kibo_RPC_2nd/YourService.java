@@ -4,55 +4,26 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.google.zxing.BinaryBitmap;
-import com.google.zxing.ChecksumException;
-import com.google.zxing.DecodeHintType;
-import com.google.zxing.FormatException;
-import com.google.zxing.LuminanceSource;
-import com.google.zxing.MultiFormatReader;
-import com.google.zxing.NotFoundException;
-import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.RGBLuminanceSource;
-import com.google.zxing.Reader;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.opencv.android.Utils;
-import org.opencv.calib3d.Calib3d;
 import org.opencv.aruco.Aruco;
-import org.opencv.aruco.DetectorParameters;
 import org.opencv.aruco.Dictionary;
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
-import static org.opencv.android.Utils.bitmapToMat;
-import static org.opencv.android.Utils.matToBitmap;
-import static org.opencv.core.CvType.CV_32FC1;
-import static org.opencv.core.CvType.CV_64F;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import gov.nasa.arc.astrobee.Kinematics;
-import gov.nasa.arc.astrobee.Result;
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
-import jp.jaxa.iss.kibo.rpc.api.KiboRpcApi;
+
 import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
 
-import static android.graphics.Bitmap.createBitmap;
 import static org.opencv.core.CvType.CV_64FC1;
-
-import android.graphics.Bitmap;
 
 public class YourService extends KiboRpcService {
 
@@ -107,9 +78,10 @@ public class YourService extends KiboRpcService {
     private void moveTo(Point p, Quaternion q){
         moveTo(p, q, false);
     }
+
     private void moveTo(Point p, Quaternion q, boolean direction){
         Point robotPose = null;
-        double x = 0, y = 0, z = 0, error = 0, tolerence = 0.3d;
+        double x, y, z, error = 0, tolerance = 0.3d;
         do {
             error = 0;
             Kinematics kinematics = api.getRobotKinematics();
@@ -118,12 +90,15 @@ public class YourService extends KiboRpcService {
             x = Math.abs(p.getX() - robotPose.getX());
             y = Math.abs(p.getY() - robotPose.getY());
             z = Math.abs(p.getZ() - robotPose.getZ());
+            error += x;
+            error += y;
+            error += z;
             if(direction){
                 double w = Math.abs(kinematics.getOrientation().getW() - q.getW());
                 error += w;
-                tolerence = 0.33d;
+                tolerance = 0.33d;
             }
-        } while (error > tolerence);
+        } while (error > tolerance);
     }
 
     /**************************************************************************
@@ -143,6 +118,7 @@ public class YourService extends KiboRpcService {
     }
     private Mat getCamIntrinsics(){
         //        cam_matrix arr to mat
+
         Mat cam_Matrix = new Mat(3, 3, CV_64FC1);
         double [] nav_intrinsics = api.getNavCamIntrinsics()[0];
         for(int i = 0; i < 3; ++i){
@@ -150,6 +126,7 @@ public class YourService extends KiboRpcService {
                 cam_Matrix.put(i, j, nav_intrinsics[i * 3 + j]);
             }
         }
+
 //        for (int i = 0; i <= 8; ++i)
 //        {
 //            int row, col ;
@@ -167,6 +144,13 @@ public class YourService extends KiboRpcService {
 //        Log.d("Get Cam_Matrix[status]", Arrays.toString(nav_intrinsics));
 //        Log.d("Get Cam_Matrix[status]", cam_Matrix.dump());
 //        Log.d("Get Cam_Matrix[status]:","Acquired");
+
+        if(!cam_Matrix.empty()) {
+            Log.d("Get Cam_Matrix[status]:", "Acquired");
+        }else{
+            Log.d("Get Cam_Matrix[status]:", "Not Acquired");
+        }
+
         return cam_Matrix;
     }
     private Mat getDist_coeff(){
@@ -277,6 +261,17 @@ public class YourService extends KiboRpcService {
         return info;
     }
 
+    public Quaternion Qua_multiply(Quaternion Qa, Quaternion Qb)
+    {
+
+        float w = Qa.getW() * Qb.getW() - Qa.getX() * Qb.getX() - Qa.getY() * Qb.getY() - Qa.getZ()* Qb.getZ();
+        float x = Qa.getW() * Qb.getX() + Qa.getX() * Qb.getW() + Qa.getY() * Qb.getZ() - Qa.getZ()* Qb.getY();
+        float y = Qa.getW() * Qb.getY() - Qa.getX() * Qb.getZ() + Qa.getY() * Qb.getW() + Qa.getZ()* Qb.getX();
+        float z = Qa.getW() * Qb.getZ() + Qa.getX() * Qb.getY() - Qa.getY() * Qb.getX() + Qa.getZ()* Qb.getW();
+
+        return new Quaternion(x, y, z, w);
+    }
+
     public void aimLaser()
     {
 //        remember to put in loop
@@ -285,13 +280,13 @@ public class YourService extends KiboRpcService {
         Mat dist_Coeff = getDist_coeff();
 //        Mat Nav_Cam_View = api.getMatNavCam();
         Mat ids = new Mat();
-        List<Mat> corners = new ArrayList<Mat>();
+        List<Mat> corners = new ArrayList<>();
         Dictionary AR_Tag_dict = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
 //                    get target position in view img
         Aruco.detectMarkers(Nav_Cam_View, AR_Tag_dict, corners, ids);
         //            needs if statement
 
-        if(corners != null && !corners.isEmpty()) {
+        if(!corners.isEmpty()) {
             Log.d("AR[status]:", " Detected");
 //            Log.d("AR[status]", corners.toString());
 //            Log.d("AR[status]", corners.size() + " ");
@@ -345,10 +340,12 @@ public class YourService extends KiboRpcService {
 
         Mat rvecs = new Mat();
         Mat tvecs =new Mat();
+
         Mat _obj = new Mat();
 //        Log.d("AR[status]", "start estimate");
         Aruco.estimatePoseSingleMarkers(Arrays.asList(corners_sorted), 0.05f, cam_Matrix, dist_Coeff, rvecs, tvecs, _obj);
 //        Log.d("AR[status]", "end estimate");
+
 //        maybe, yep here
 //        Log.d("AR[status] t", tvecs.dump());
 //        Log.d("AR[status] r", rvecs.dump());
@@ -385,8 +382,11 @@ public class YourService extends KiboRpcService {
         double y = s * Vec_A[1];
         double z = s * Vec_A[2];
 
-        Quaternion target_orientation = new Quaternion((float)x,(float)y,(float)z,(float)w);
-        Log.d("Target", target_orientation.toString());
+
+        Quaternion relative_target_orientation = new Quaternion((float)x,(float)y,(float)z,(float)w);
+//        Log.d("Target", target_orientation.toString());
+        Quaternion target_orientation = Qua_multiply(cam_orientation,relative_target_orientation);
+//        target_orientation = cam_orientation  relative_target_orientation;
         try {
             Log.d("TARGET QUATERNION[status]:", String.format("%s", target_orientation.toString()));
         }catch (Exception e){
@@ -457,11 +457,11 @@ public class YourService extends KiboRpcService {
         }
     }
 
-    private String getQR(){
+    private void getQR(){
         Log.d("getQR: ","called");
         waiting();
         int count = 0;
-        String getQRString = null;
+        String getQRString;
 
         do{
             getQRString = readQR(api.getBitmapNavCam());
@@ -476,25 +476,23 @@ public class YourService extends KiboRpcService {
             sort(getQRString);
             Log.d("Finished", ap + "," + ax + "," + ay + "," + az);
             api.sendDiscoveredQR(getQRString);
-
         }
-        return getQRString;
     }
 
     private void waiting(){
         try {
             Thread.sleep(200);
-        }catch (Exception e){
+        }catch (Exception ignored){
 
         }
     }
 
     private void sort(String qrcode) {
-        String[] splt = qrcode.split("[\"{}:,pxyz]+");
-        ap = Integer.parseInt(splt[1]);
-        ax = Double.parseDouble(splt[2]);
-        ay = Double.parseDouble(splt[3]);
-        az = Double.parseDouble(splt[4]);
+        String[] spilt = qrcode.split("[\"{}:,pxyz]+");
+        ap = Integer.parseInt(spilt[1]);
+        ax = Double.parseDouble(spilt[2]);
+        ay = Double.parseDouble(spilt[3]);
+        az = Double.parseDouble(spilt[4]);
         a_ = new Point(ax, ay, az);
     }
 

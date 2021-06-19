@@ -1,9 +1,11 @@
 <component name="libraryTable">
   <library name="Gradle: com.quickbirdstudios:opencv:3.4.4-contrib@aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.android/build-cache/2f594f3e4e0ea35a51decbfc4ca5414cfefcb0c1/output/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.android/build-cache/2f594f3e4e0ea35a51decbfc4ca5414cfefcb0c1/output/res" />
-      <root url="file://$USER_HOME$/.android/build-cache/2f594f3e4e0ea35a51decbfc4ca5414cfefcb0c1/output/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.android/build-cache/c0a87f5e08206e667502fe5cbe1621c4cd59823e/output/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.android/build-cache/c0a87f5e08206e667502fe5cbe1621c4cd59823e/output/res" />
+      <root url="file://$USER_HOME$/.android/build-cache/2ef7ef76313ec5344b7db23d4386ccea1282ada7/output/res" />
+      <root url="jar://$USER_HOME$/.android/build-cache/2ef7ef76313ec5344b7db23d4386ccea1282ada7/output/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.android/build-cache/2ef7ef76313ec5344b7db23d4386ccea1282ada7/output/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

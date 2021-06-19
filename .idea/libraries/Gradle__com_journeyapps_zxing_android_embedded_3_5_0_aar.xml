@@ -1,9 +1,11 @@
 <component name="libraryTable">
   <library name="Gradle: com.journeyapps:zxing-android-embedded:3.5.0@aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.android/build-cache/4882694432d8da1ec76d00a2311a512454f74967/output/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.android/build-cache/4882694432d8da1ec76d00a2311a512454f74967/output/res" />
-      <root url="file://$USER_HOME$/.android/build-cache/4882694432d8da1ec76d00a2311a512454f74967/output/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.android/build-cache/7f3536457af0130cd1878380bbfe6180309a14b9/output/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.android/build-cache/7f3536457af0130cd1878380bbfe6180309a14b9/output/res" />
+      <root url="jar://$USER_HOME$/.android/build-cache/b05e2304fd288c84e8ed801410f2846fd38b96d2/output/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.android/build-cache/b05e2304fd288c84e8ed801410f2846fd38b96d2/output/res" />
+      <root url="file://$USER_HOME$/.android/build-cache/b05e2304fd288c84e8ed801410f2846fd38b96d2/output/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

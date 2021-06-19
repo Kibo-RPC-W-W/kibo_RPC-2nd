@@ -1,9 +1,11 @@
 <component name="libraryTable">
   <library name="Gradle: com.android.support:support-media-compat:26.1.0@aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.android/build-cache/65d4bdbaf12b34f7758acded542126dd5286d826/output/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.android/build-cache/65d4bdbaf12b34f7758acded542126dd5286d826/output/res" />
-      <root url="file://$USER_HOME$/.android/build-cache/65d4bdbaf12b34f7758acded542126dd5286d826/output/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.android/build-cache/240630c2df61e9826948b3f5d3cc3a869de208e6/output/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.android/build-cache/240630c2df61e9826948b3f5d3cc3a869de208e6/output/res" />
+      <root url="file://$USER_HOME$/.android/build-cache/e487e12e34dbceb6370612ac6e9d7e9ab7e9ecf9/output/res" />
+      <root url="jar://$USER_HOME$/.android/build-cache/e487e12e34dbceb6370612ac6e9d7e9ab7e9ecf9/output/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.android/build-cache/e487e12e34dbceb6370612ac6e9d7e9ab7e9ecf9/output/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

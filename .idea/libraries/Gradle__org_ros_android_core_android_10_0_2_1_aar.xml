@@ -1,9 +1,11 @@
 <component name="libraryTable">
   <library name="Gradle: org.ros.android_core:android_10:0.2.1@aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.android/build-cache/53c8cb1dd8b3d07f5ff2863c51861fb5be49828c/output/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.android/build-cache/53c8cb1dd8b3d07f5ff2863c51861fb5be49828c/output/res" />
-      <root url="file://$USER_HOME$/.android/build-cache/53c8cb1dd8b3d07f5ff2863c51861fb5be49828c/output/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.android/build-cache/0f999e7d2a3e2883b64530354a515352d3cdadf4/output/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.android/build-cache/0f999e7d2a3e2883b64530354a515352d3cdadf4/output/res" />
+      <root url="jar://$USER_HOME$/.android/build-cache/0cf51ae2e61a7282fe62135c4b0327db063ee2be/output/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.android/build-cache/0cf51ae2e61a7282fe62135c4b0327db063ee2be/output/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.android/build-cache/0cf51ae2e61a7282fe62135c4b0327db063ee2be/output/res" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

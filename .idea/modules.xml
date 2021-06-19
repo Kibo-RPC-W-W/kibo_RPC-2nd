@@ -6,6 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/DefaultApk.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/DefaultApk.app.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/guest_science_library/DefaultApk.guest_science_library.iml" filepath="$PROJECT_DIR$/.idea/modules/guest_science_library/DefaultApk.guest_science_library.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/kibo_rpc_api/DefaultApk.kibo_rpc_api.iml" filepath="$PROJECT_DIR$/.idea/modules/kibo_rpc_api/DefaultApk.kibo_rpc_api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/openCVLibrary3410/DefaultApk.openCVLibrary3410.iml" filepath="$PROJECT_DIR$/.idea/modules/openCVLibrary3410/DefaultApk.openCVLibrary3410.iml" />
     </modules>
   </component>
 </project>
