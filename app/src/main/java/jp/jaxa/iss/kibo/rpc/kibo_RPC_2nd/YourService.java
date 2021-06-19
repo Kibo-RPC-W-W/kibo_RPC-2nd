@@ -28,7 +28,7 @@ import static org.opencv.core.CvType.CV_64FC1;
 public class YourService extends KiboRpcService {
 
     static Point a_ = null;
-
+    static Point b = new Point(10.6, -8.0, 4.5);
     Quaternion q = new Quaternion(0f, 0f, -0.707f, 0.707f);
 
     int ap;
@@ -39,12 +39,11 @@ public class YourService extends KiboRpcService {
 
         // write here your plan 1
         api.startMission();
-        Log.d("Info count/priority", Thread.activeCount() + " " + Thread.currentThread().getPriority());
         //move to point A
         Point p1 = new Point(11.21, -10, 5.0f);
         Quaternion q1 = new Quaternion(0f, 0f, -0.707f, 0.71f);
         Log.d("START", "move to a");
-        moveTo(p1, q1);
+        moveTo(p1, q1, true);
 
         //show point A info
         Log.d("IMU", api.getRobotKinematics().getOrientation().toString());
@@ -61,16 +60,17 @@ public class YourService extends KiboRpcService {
         if(ap >= 2 && ap <= 6){
             pattern23456(a_, q);
         }
-        else{
+        else if(ap == 7){
             pattern178(a_, q);
+        }else{
+            pattern18(a_, q);
         }
         Log.d("IMU", api.getRobotKinematics().getOrientation().toString());
         Log.d("position", api.getRobotKinematics().getPosition().toString());
         aimLaser();
-        for(int i = 0; i < 10; ++i){
-            api.takeSnapshot();
-            Log.d("Debug__", "shot");
-        }
+        api.takeSnapshot();
+        Log.d("Debug__", "shot");
+        api.laserControl(false);
         endGame();
     }
 
@@ -80,12 +80,12 @@ public class YourService extends KiboRpcService {
     }
 
     private void moveTo(Point p, Quaternion q, boolean direction){
-        Point robotPose = null;
-        double x, y, z, error = 0, tolerance = 0.3d;
+        Point robotPose;
+        double x, y, z, error, tolerance = 0.3d;
         do {
             error = 0;
             Kinematics kinematics = api.getRobotKinematics();
-            api.moveTo(p, q, false);
+            api.moveTo(p, q, true);
             robotPose = kinematics.getPosition();
             x = Math.abs(p.getX() - robotPose.getX());
             y = Math.abs(p.getY() - robotPose.getY());
@@ -126,24 +126,6 @@ public class YourService extends KiboRpcService {
                 cam_Matrix.put(i, j, nav_intrinsics[i * 3 + j]);
             }
         }
-
-//        for (int i = 0; i <= 8; ++i)
-//        {
-//            int row, col ;
-//
-//            if(i < 3){
-//                row = 0; col = i;
-//            } else if(i<6){
-//                row = 1; col = i-3;
-//            } else{
-//                row = 2; col = i-6;
-//            }
-//
-//            cam_Matrix.put(row, col, Nav_Intrinsics[0][i]);
-//        }
-//        Log.d("Get Cam_Matrix[status]", Arrays.toString(nav_intrinsics));
-//        Log.d("Get Cam_Matrix[status]", cam_Matrix.dump());
-//        Log.d("Get Cam_Matrix[status]:","Acquired");
 
         if(!cam_Matrix.empty()) {
             Log.d("Get Cam_Matrix[status]:", "Acquired");
@@ -275,7 +257,9 @@ public class YourService extends KiboRpcService {
     public void aimLaser()
     {
 //        remember to put in loop
+        Log.d("Time", "before undistort");
         Mat Nav_Cam_View = undistortImg(api.getMatNavCam());
+        Log.d("TIme", "after undistort");
         Mat cam_Matrix = getCamIntrinsics();
         Mat dist_Coeff = getDist_coeff();
 //        Mat Nav_Cam_View = api.getMatNavCam();
@@ -292,7 +276,8 @@ public class YourService extends KiboRpcService {
 //            Log.d("AR[status]", corners.size() + " ");
 //            Log.d("AR[status]", ids.dump());
         }else{
-            Log.d("AR[status]:", "Detected");
+            Log.d("AR[status]:", "Not Detected");
+            return;
         }
 
 //        aim relative to Nav_cam's point of view
@@ -402,8 +387,9 @@ public class YourService extends KiboRpcService {
      *                        To A'  To B
      **************************************************************************/
     public void pattern23456(Point a_, Quaternion q){
-        Point z = new Point(11.21, -9.8, a_.getZ());
-        moveTo(new Point(11.21, -9.8, 4.79), q);
+        Point z = new Point(10.9, -9.8, a_.getZ());
+
+        moveTo(new Point(10.9, -9.8, 4.79), q);
         Log.d("23456", "1");
         moveTo(z, q);
         Log.d("23456", "2");
@@ -412,18 +398,51 @@ public class YourService extends KiboRpcService {
 
     }
     public void pattern178(Point a_, Quaternion q){
-        Point z = new Point(11.52f, -10f, a_.getZ());
-        moveTo(new Point(11.52f, -10f, 5f), q);
+        Point z = new Point(11.47f, -10f, a_.getZ());
+
+        moveTo(new Point(11.47f, -10f, 5f), q);
         Log.d("178", "1");
         moveTo(z, q);
         Log.d("178", "2");
         moveTo(a_, q);
         Log.d("178", "3");
     }
+    public void pattern18(Point a_, Quaternion q){
+        Point step1 = new Point(a_.getX(), a_.getY(), 5);
+        moveTo(step1, q);
+        moveTo(a_, q);
+    }
     public void endGame(){
-        Point b = new Point(10.6, -8.0, 4.5);
-        api.moveTo(b, q, true);
+        if(ap <= 4 || ap == 8){
+            end12348();
+        }else if(ap == 7){
+            end7();
+        }else if(ap >= 5 && ap <= 6){
+            end56();
+        }
+        moveTo(b, q);
         api.reportMissionCompletion();
+    }
+    public void end12348(){
+        Point curr = api.getTrustedRobotKinematics().getPosition();
+        Point step1 = new Point(curr.getX(), curr.getY(), b.getZ());
+        Point step2 = new Point(10.5, -9.5, b.getZ());
+        Point step3 = new Point(10.5, -8.4, b.getZ());
+        moveTo(step1, q);
+        moveTo(step2, q);
+        moveTo(step3, q);
+    }
+    public void end7(){
+        Point step1 = new Point(11.47f, -10f, a_.getZ());
+        moveTo(step1, q);
+        end12348();
+    }
+    public void end56(){
+        Point curr = api.getTrustedRobotKinematics().getPosition();
+        Point step1 = new Point(10.5, -9.5, curr.getZ());
+        Point step2 = new Point(10.5, -8.4, b.getZ());
+        moveTo(step1, q);
+        moveTo(step2, q);
     }
 
     /**************************************************************************
@@ -440,8 +459,9 @@ public class YourService extends KiboRpcService {
             BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(rgbLuminanceSource));
 
             QRCodeReader qrCodeReader = new QRCodeReader();
+            Log.d("Time", "before decode");
             com.google.zxing.Result result = qrCodeReader.decode(binaryBitmap);
-
+            Log.d("Time", "after decode");
             if(result.getNumBits() != 0){
                 Log.d("FINISH", "readQR success");
             }
@@ -466,6 +486,7 @@ public class YourService extends KiboRpcService {
         do{
             getQRString = readQR(api.getBitmapNavCam());
             ++count;
+            Log.d("ReadQR", "~");
         }while(getQRString == null && count < 3);
 
         if (getQRString == null){
