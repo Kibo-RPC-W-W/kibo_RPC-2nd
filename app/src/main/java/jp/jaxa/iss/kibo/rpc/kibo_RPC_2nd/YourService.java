@@ -354,8 +354,8 @@ public class YourService extends KiboRpcService {
 //        Log.d("AR[status] r", rvecs.dump());
 //        Log.d("Debug_", String.valueOf(tvecs.get(0, 0)[0]));
 //        Log.d("Debug_", String.valueOf(tvecs.get(2, 0)[0]));
-        double[] p2 = new double[]{tvecs.get(0, 0)[0], tvecs.get(0, 0)[1], tvecs.get(0, 0)[2]};
-        double[] p4 = new double[]{tvecs.get(2, 0)[0], tvecs.get(2, 0)[1], tvecs.get(2, 0)[2]};
+        double[] p2 = tvecs.get(0, 0);
+        double[] p4 = tvecs.get(2, 0);
 //        Log.d("Debug", "1");
         double[] target_vec_cam = get_midpoint(p2, p4);
 //        Log.d("Debug", "2");
