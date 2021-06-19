@@ -95,7 +95,7 @@ public class YourService extends KiboRpcService {
         Log.d("position", api.getRobotKinematics().getPosition().toString());
 
         for(int i = 0; i < 10; ++i){
-            aimLaser();
+            laser_Event();
         }
     }
 
@@ -126,7 +126,8 @@ public class YourService extends KiboRpcService {
         Imgproc.undistort(src, output, cam_Matrix, dist_Coeff);
         return output;
     }
-    private Mat getCamIntrinsics(){
+    private Mat getCamIntrinsics()
+    {
         //        cam_matrix arr to mat
         Mat cam_Matrix = new Mat(1,8,CvType.CV_64FC(1));
         double [][] Nav_Intrinsics = api.getNavCamIntrinsics();
@@ -151,7 +152,8 @@ public class YourService extends KiboRpcService {
         }
         return cam_Matrix;
     }
-    private Mat getDist_coeff(){
+    private Mat getDist_coeff()
+    {
         //         dat coefficient arr to mat
         double [][] Nav_Intrinsics = api.getNavCamIntrinsics();
         Mat dist_Coeff = new Mat(1,4,CvType.CV_64FC(1));
@@ -164,7 +166,8 @@ public class YourService extends KiboRpcService {
 
     }
 
-    public double[] multiply_mat_vec(double[][] matrix, double[] vector) {
+    public double[] multiply_mat_vec(double[][] matrix, double[] vector)
+    {
         int rows = matrix.length;
         int columns = matrix[0].length;
 
@@ -268,19 +271,16 @@ public class YourService extends KiboRpcService {
 
     }
 
-    public void aimLaser()
+    public double[][] get_cross_vecs( Quaternion cam_orientation)
     {
-//        remember to put in loop
         Mat Nav_Cam_View = undistortImg(api.getMatNavCam());
         Mat cam_Matrix = getCamIntrinsics();
         Mat dist_Coeff = getDist_coeff();
-//        Mat Nav_Cam_View = api.getMatNavCam();
         Mat ids = new Mat();
         List<Mat> corners = new ArrayList<>();
         Dictionary AR_Tag_dict = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
 //                    get target position in view img
         Aruco.detectMarkers(Nav_Cam_View, AR_Tag_dict, corners, ids);
-        //            needs if statement
 
         if(!corners.isEmpty()) {
             Log.d("AR[status]:", " Detected");
@@ -293,8 +293,7 @@ public class YourService extends KiboRpcService {
 
 //        aim relative to Nav_cam's point of view
 
-//        int[] ids_sorted = new int[4];
-//        List<Mat> corners_sorted = new ArrayList<Mat>();
+
         Mat[] corners_sorted = new Mat[4];
         //            sort corners 1234
         for(int i = 0; i < 4; ++i)
@@ -313,8 +312,8 @@ public class YourService extends KiboRpcService {
         Log.d("Corners_Sorted:", corners_sorted.toString());
 
 //        pose estimation
-        Quaternion cam_orientation = api.getTrustedRobotKinematics().getOrientation();
-        Log.d("Current Orientation: ", cam_orientation.toString());
+//        Quaternion cam_orientation = api.getTrustedRobotKinematics().getOrientation();
+//        Log.d("Current Orientation: ", cam_orientation.toString());
         float cam_qw = cam_orientation.getW();
         float cam_qx = cam_orientation.getX();
         float cam_qy = cam_orientation.getY();
@@ -326,7 +325,6 @@ public class YourService extends KiboRpcService {
         double[] original_dir_j = {0,0,-1};
         double[] original_dir_k = {1,0,0};
 
-
         double[] cam_dir_k = multiply_mat_vec(rotation_abs_to_cam, original_dir_k);
         double[] cam_dir_i = multiply_mat_vec(rotation_abs_to_cam, original_dir_i);
         double[] cam_dir_j = multiply_mat_vec(rotation_abs_to_cam, original_dir_j);
@@ -335,9 +333,8 @@ public class YourService extends KiboRpcService {
         to_unit_vector(cam_dir_j);
         to_unit_vector(cam_dir_k);
 
-        Mat rvecs = new Mat(1,3, CvType.CV_64FC(1));
-        Mat tvecs =new Mat(1,3, CvType.CV_64FC(1));
-//        Mat _obj = new Mat();
+        Mat rvecs = new Mat(4,3, CvType.CV_64FC(1));
+        Mat tvecs =new Mat(4,3, CvType.CV_64FC(1));
         Log.d("AR[status]", "start estimate");
         Aruco.estimatePoseSingleMarkers(Arrays.asList(corners_sorted), 0.05f, cam_Matrix, dist_Coeff, rvecs, tvecs);
         Log.d("AR[status]", "end estimate");
@@ -352,21 +349,131 @@ public class YourService extends KiboRpcService {
         p4[2] = tvecs.get(3, 2)[0];
         double[] target_vec_cam = get_midpoint(p2, p4);
 
+        double[] laser_cam_vec =
+                {target_vec_cam[0] - 0.0994,
+                target_vec_cam[1] - (-0.0285),
+                target_vec_cam[2]};
 
         double[][] t_mat = new double[3][3];
         t_mat[0] = cam_dir_i; t_mat[1] = cam_dir_j; t_mat[2] = cam_dir_k;
         double[] target_vec_abs = multiply_mat_vec(t_mat, target_vec_cam);
+        double[][] output = {cam_dir_k,target_vec_abs,laser_cam_vec};
+
+        return output;
+    }
+
+    public void aim(String situation)
+    {
+//        Mat Nav_Cam_View = undistortImg(api.getMatNavCam());
+//        Mat cam_Matrix = getCamIntrinsics();
+//        Mat dist_Coeff = getDist_coeff();
+//        Mat ids = new Mat();
+//        List<Mat> corners = new ArrayList<>();
+//        Dictionary AR_Tag_dict = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
+
+        Quaternion cam_orientation = api.getTrustedRobotKinematics().getOrientation();
+        Log.d("Current Orientation: ", cam_orientation.toString());
+
+
+        double[][] cross_vecs = get_cross_vecs(cam_orientation);
+        double[] cam_dir_k = cross_vecs[0];
+        double[] target_vec_abs = cross_vecs[1];
+        double[] laser_target_vec = cross_vecs[2];
+//                    get target position in view img
+//        Aruco.detectMarkers(Nav_Cam_View, AR_Tag_dict, corners, ids);
+//
+//        if(!corners.isEmpty()) {
+//            Log.d("AR[status]:", " Detected");
+//            Log.d("AR[status]", corners.toString());
+//            Log.d("AR[status]", corners.size() + " ");
+//            Log.d("AR[status]", ids.dump());
+//        }else{
+//            Log.d("AR[status]:", "Detected");
+//        }
+//
+////        aim relative to Nav_cam's point of view
+//
+//        Mat[] corners_sorted = new Mat[4];
+//        //            sort corners 1234
+//        for(int i = 0; i < 4; ++i)
+//        {
+//            int id = (int)ids.get(i, 0)[0];
+////            Log.d("Debug", "1");
+////            ids_sorted[id-1] = id;
+//            Mat vec = corners.get(i);
+////            Log.d("Debug", "2");
+//
+//            corners_sorted[id - 1] = vec;
+////            Log.d("Debug", "3");
+//
+//        }
+//
+//        Log.d("Corners_Sorted:", corners_sorted.toString());
+//
+////        pose estimation
+////        Quaternion cam_orientation = api.getTrustedRobotKinematics().getOrientation();
+////        Log.d("Current Orientation: ", cam_orientation.toString());
+////        float cam_qw = cam_orientation.getW();
+////        float cam_qx = cam_orientation.getX();
+////        float cam_qy = cam_orientation.getY();
+////        float cam_qz = cam_orientation.getZ();
+//
+//        double[][] rotation_abs_to_cam = qua_to_rotation_mat(cam_qw,cam_qx,cam_qy,cam_qz);
+//
+//        double[] original_dir_i = {0,-1,0};
+//        double[] original_dir_j = {0,0,-1};
+//        double[] original_dir_k = {1,0,0};
+//
+//
+//        double[] cam_dir_k = multiply_mat_vec(rotation_abs_to_cam, original_dir_k);
+//        double[] cam_dir_i = multiply_mat_vec(rotation_abs_to_cam, original_dir_i);
+//        double[] cam_dir_j = multiply_mat_vec(rotation_abs_to_cam, original_dir_j);
+//
+//        to_unit_vector(cam_dir_i);
+//        to_unit_vector(cam_dir_j);
+//        to_unit_vector(cam_dir_k);
+//
+//        Mat rvecs = new Mat(4,3, CvType.CV_64FC(1));
+//        Mat tvecs =new Mat(4,3, CvType.CV_64FC(1));
+//        Log.d("AR[status]", "start estimate");
+//        Aruco.estimatePoseSingleMarkers(Arrays.asList(corners_sorted), 0.05f, cam_Matrix, dist_Coeff, rvecs, tvecs);
+//        Log.d("AR[status]", "end estimate");
+////        maybe, yep here
+//        double[] p2 = new double[3];
+//        p2[0] = tvecs.get(1, 0)[0];
+//        p2[1] = tvecs.get(1, 1)[0];
+//        p2[2] = tvecs.get(1, 2)[0];
+//        double[] p4 = new double[3];
+//        p4[0] = tvecs.get(3, 0)[0];
+//        p4[1] = tvecs.get(3, 1)[0];
+//        p4[2] = tvecs.get(3, 2)[0];
+//        double[] target_vec_cam = get_midpoint(p2, p4);
+//
+//
+//        double[][] t_mat = new double[3][3];
+//        t_mat[0] = cam_dir_i; t_mat[1] = cam_dir_j; t_mat[2] = cam_dir_k;
+//        double[] target_vec_abs = multiply_mat_vec(t_mat, target_vec_cam);
 
 //        get theta between camZ and target_vec_abs
-        double[] angle_info = get_angle_info(cam_dir_k, target_vec_abs);
-        double w = angle_info[0];
-        double s = angle_info[1];
+
+
 
 //        cross camZ and target_vec_abs
+        double[] angle_info = new double[2];
         double[] Vec_A = new double[3];
-        crossProduct(cam_dir_k, target_vec_abs, Vec_A);
+        if(situation == "cam") {
+            crossProduct(cam_dir_k, target_vec_abs, Vec_A);
+            angle_info = get_angle_info(cam_dir_k, target_vec_abs);
+        }else if(situation == "laser"){
+            crossProduct(laser_target_vec,target_vec_abs,Vec_A);
+            angle_info = get_angle_info(laser_target_vec, target_vec_abs);
+        }
+
         to_unit_vector(Vec_A);
 //        get quaternion from cross and theta
+
+        double w = angle_info[0];
+        double s = angle_info[1];
 
         double x = s * Vec_A[0];
         double y = s * Vec_A[1];
@@ -382,12 +489,26 @@ public class YourService extends KiboRpcService {
         }catch (Exception e){
             Log.d("TARGET QUATERNION[status]:", e.toString());
         }
+
+
 //        turn
         Point goal = new Point(0,0,0);
         api.relativeMoveTo(goal,target_orientation,true);
+
+
+//        api.laserControl(true);
+//        waiting();
+//        api.takeSnapshot();
+    }
+
+    public void laser_Event()
+    {
+        aim("cam");
+        aim("laser");
         api.laserControl(true);
         waiting();
         api.takeSnapshot();
+
     }
     /**************************************************************************
      *                        To A'  To B
