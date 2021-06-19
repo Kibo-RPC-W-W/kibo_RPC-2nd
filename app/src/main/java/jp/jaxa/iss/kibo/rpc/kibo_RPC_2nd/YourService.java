@@ -23,6 +23,7 @@ import org.opencv.aruco.Aruco;
 import org.opencv.aruco.DetectorParameters;
 import org.opencv.aruco.Dictionary;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -49,6 +50,8 @@ import jp.jaxa.iss.kibo.rpc.api.KiboRpcApi;
 import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
 
 import static android.graphics.Bitmap.createBitmap;
+import static org.opencv.core.CvType.CV_64FC1;
+
 import android.graphics.Bitmap;
 
 public class YourService extends KiboRpcService {
@@ -92,25 +95,35 @@ public class YourService extends KiboRpcService {
         }
         Log.d("IMU", api.getRobotKinematics().getOrientation().toString());
         Log.d("position", api.getRobotKinematics().getPosition().toString());
-
+        aimLaser();
         for(int i = 0; i < 10; ++i){
-            aimLaser();
+            api.takeSnapshot();
+            Log.d("Debug__", "shot");
         }
+        endGame();
     }
 
 
     private void moveTo(Point p, Quaternion q){
+        moveTo(p, q, false);
+    }
+    private void moveTo(Point p, Quaternion q, boolean direction){
         Point robotPose = null;
-        double x = 0, y = 0, z = 0;
-
+        double x = 0, y = 0, z = 0, error = 0, tolerence = 0.3d;
         do {
+            error = 0;
+            Kinematics kinematics = api.getRobotKinematics();
             api.moveTo(p, q, false);
-            robotPose = api.getTrustedRobotKinematics().getPosition();
+            robotPose = kinematics.getPosition();
             x = Math.abs(p.getX() - robotPose.getX());
             y = Math.abs(p.getY() - robotPose.getY());
             z = Math.abs(p.getZ() - robotPose.getZ());
-
-        } while (x + y + z > 0.3);
+            if(direction){
+                double w = Math.abs(kinematics.getOrientation().getW() - q.getW());
+                error += w;
+                tolerence = 0.33d;
+            }
+        } while (error > tolerence);
     }
 
     /**************************************************************************
@@ -121,44 +134,52 @@ public class YourService extends KiboRpcService {
         Mat dist_Coeff = getDist_coeff();
         Mat cam_Matrix = getCamIntrinsics();
         Mat output = new Mat(src.rows(), src.cols(), src.type());
-
+        if(src == null){
+            Log.d("Debug_undistort", "src == null");
+        }
         Imgproc.undistort(src, output, cam_Matrix, dist_Coeff);
+        Log.d("Debug_undistort", "pass");
         return output;
     }
     private Mat getCamIntrinsics(){
         //        cam_matrix arr to mat
-        Mat cam_Matrix = new Mat();
-        double [][] Nav_Intrinsics = api.getNavCamIntrinsics();
-        for (int i = 0; i <= 8; ++i)
-        {
-            int row , col ;
-
-            if(i < 3){row = 0; col = i;}
-            else if(i<6){row = 1;col = i-3;}
-            else{ row = 2;col = i-6;}
-
-            if(i < 3){
-                row = 0;col = i;
-            } else if(i<6){
-                row = 1;col = i-3;
-            } else{
-                row = 2;col = i-6;
+        Mat cam_Matrix = new Mat(3, 3, CV_64FC1);
+        double [] nav_intrinsics = api.getNavCamIntrinsics()[0];
+        for(int i = 0; i < 3; ++i){
+            for(int j = 0; j < 3; ++j){
+                cam_Matrix.put(i, j, nav_intrinsics[i * 3 + j]);
             }
-
-            cam_Matrix.put(row, col, Nav_Intrinsics[0][i]);
         }
-        Log.d("Get Cam_Matrix[status]:","Acquired");
+//        for (int i = 0; i <= 8; ++i)
+//        {
+//            int row, col ;
+//
+//            if(i < 3){
+//                row = 0; col = i;
+//            } else if(i<6){
+//                row = 1; col = i-3;
+//            } else{
+//                row = 2; col = i-6;
+//            }
+//
+//            cam_Matrix.put(row, col, Nav_Intrinsics[0][i]);
+//        }
+//        Log.d("Get Cam_Matrix[status]", Arrays.toString(nav_intrinsics));
+//        Log.d("Get Cam_Matrix[status]", cam_Matrix.dump());
+//        Log.d("Get Cam_Matrix[status]:","Acquired");
         return cam_Matrix;
     }
     private Mat getDist_coeff(){
         //         dat coefficient arr to mat
-        double [][] Nav_Intrinsics = api.getNavCamIntrinsics();
-        Mat dist_Coeff = new Mat();
-        for(int i = 0; i<=4 ;i++)
-        {
-            dist_Coeff.put(0,i,Nav_Intrinsics[1][i]);
-        }
-        Log.d("Get Dist_coeff[status]:","Acquired");
+        double [] nav_intrinsics = api.getNavCamIntrinsics()[1];
+        Mat dist_Coeff = new Mat(1, 4, CV_64FC1);
+        dist_Coeff.put(0, 0, nav_intrinsics[0]);
+        dist_Coeff.put(0, 1, nav_intrinsics[1]);
+        dist_Coeff.put(0, 2, nav_intrinsics[2]);
+        dist_Coeff.put(0, 3, nav_intrinsics[3]);
+//        Log.d("Get Dist_coeff[status]", Arrays.toString(nav_intrinsics));
+//        Log.d("Get Dist_coeff[status]", dist_Coeff.dump());
+//        Log.d("Get Dist_coeff[status]:","Acquired");
         return dist_Coeff;
 
     }
@@ -166,7 +187,9 @@ public class YourService extends KiboRpcService {
     public double[] multiply_mat_vec(double[][] matrix, double[] vector) {
         int rows = matrix.length;
         int columns = matrix[0].length;
-
+        if(columns != vector.length){
+            Log.d("Debug_multiply_mat_vec", "couldn't match");
+        }
         double[] result = new double[rows];
 
         for (int row = 0; row < rows; row++) {
@@ -218,9 +241,9 @@ public class YourService extends KiboRpcService {
     public void to_unit_vector(double[] vec)
     {
         double len = 0;
-        for(int i = 0; i< 3; i++) { len += Math.pow(vec[i],2); }
+        for(int i = 0; i < 3; i++) { len += Math.pow(vec[i],2); }
         len = Math.sqrt(len);
-        for(int i = 0; i< 3; i++){vec[i] = vec[i] * (1/len); }
+        for(int i = 0; i < 3; i++){vec[i] = vec[i] * (1.0/len); }
     }
 
     public double dotProduct(double[] a, double[] b) {
@@ -257,10 +280,10 @@ public class YourService extends KiboRpcService {
     public void aimLaser()
     {
 //        remember to put in loop
-//        Mat Nav_Cam_View = undistortImg(api.getMatNavCam());
+        Mat Nav_Cam_View = undistortImg(api.getMatNavCam());
         Mat cam_Matrix = getCamIntrinsics();
         Mat dist_Coeff = getDist_coeff();
-        Mat Nav_Cam_View = api.getMatNavCam();
+//        Mat Nav_Cam_View = api.getMatNavCam();
         Mat ids = new Mat();
         List<Mat> corners = new ArrayList<Mat>();
         Dictionary AR_Tag_dict = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
@@ -270,9 +293,9 @@ public class YourService extends KiboRpcService {
 
         if(corners != null && !corners.isEmpty()) {
             Log.d("AR[status]:", " Detected");
-            Log.d("AR[status]", corners.toString());
-            Log.d("AR[status]", corners.size() + " ");
-            Log.d("AR[status]", ids.dump());
+//            Log.d("AR[status]", corners.toString());
+//            Log.d("AR[status]", corners.size() + " ");
+//            Log.d("AR[status]", ids.dump());
         }else{
             Log.d("AR[status]:", "Detected");
         }
@@ -296,18 +319,17 @@ public class YourService extends KiboRpcService {
 
         }
 
-        Log.d("Corners_Sorted:", corners_sorted.toString());
+//        Log.d("Corners_Sorted:", corners_sorted.toString());
 
 //        pose estimation
         Quaternion cam_orientation = api.getTrustedRobotKinematics().getOrientation();
-        Log.d("Current Orientation: ", cam_orientation.toString());
+//        Log.d("Current Orientation: ", cam_orientation.toString());
         float cam_qw = cam_orientation.getW();
         float cam_qx = cam_orientation.getX();
         float cam_qy = cam_orientation.getY();
         float cam_qz = cam_orientation.getZ();
 
         double[][] rotation_abs_to_cam = qua_to_rotation_mat(cam_qw,cam_qx,cam_qy,cam_qz);
-
         double[] original_dir_i = {0,-1,0};
         double[] original_dir_j = {0,0,-1};
         double[] original_dir_k = {1,0,0};
@@ -324,28 +346,39 @@ public class YourService extends KiboRpcService {
         Mat rvecs = new Mat();
         Mat tvecs =new Mat();
         Mat _obj = new Mat();
-        Log.d("AR[status]", "start estimate");
+//        Log.d("AR[status]", "start estimate");
         Aruco.estimatePoseSingleMarkers(Arrays.asList(corners_sorted), 0.05f, cam_Matrix, dist_Coeff, rvecs, tvecs, _obj);
-        Log.d("AR[status]", "end estimate");
+//        Log.d("AR[status]", "end estimate");
 //        maybe, yep here
-        double[] p2 = tvecs.get(0, 1);
-        double[] p4 = tvecs.get(0, 3);
+//        Log.d("AR[status] t", tvecs.dump());
+//        Log.d("AR[status] r", rvecs.dump());
+//        Log.d("Debug_", String.valueOf(tvecs.get(0, 0)[0]));
+//        Log.d("Debug_", String.valueOf(tvecs.get(2, 0)[0]));
+        double[] p2 = new double[]{tvecs.get(0, 0)[0], tvecs.get(0, 0)[1], tvecs.get(0, 0)[2]};
+        double[] p4 = new double[]{tvecs.get(2, 0)[0], tvecs.get(2, 0)[1], tvecs.get(2, 0)[2]};
+//        Log.d("Debug", "1");
         double[] target_vec_cam = get_midpoint(p2, p4);
-
+//        Log.d("Debug", "2");
 
         double[][] t_mat = new double[3][3];
         t_mat[0] = cam_dir_i; t_mat[1] = cam_dir_j; t_mat[2] = cam_dir_k;
+//        Log.d("Debug", "2.5");
         double[] target_vec_abs = multiply_mat_vec(t_mat, target_vec_cam);
+//        Log.d("Debug", "3");
 
 //        get theta between camZ and target_vec_abs
         double[] angle_info = get_angle_info(cam_dir_k, target_vec_abs);
+//        Log.d("Debug", "3.5");
         double w = angle_info[0];
         double s = angle_info[1];
+//        Log.d("Debug", "4");
 
 //        cross camZ and target_vec_abs
         double[] Vec_A = new double[3];
         crossProduct(cam_dir_k, target_vec_abs, Vec_A);
+//        Log.d("Debug", "4.5");
         to_unit_vector(Vec_A);
+//        Log.d("Debug", "5");
 //        get quaternion from cross and theta
 
         double x = s * Vec_A[0];
@@ -364,22 +397,28 @@ public class YourService extends KiboRpcService {
         api.relativeMoveTo(goal,target_orientation,true);
         api.laserControl(true);
         waiting();
-        api.takeSnapshot();
     }
     /**************************************************************************
      *                        To A'  To B
      **************************************************************************/
     public void pattern23456(Point a_, Quaternion q){
         Point z = new Point(11.21, -9.8, a_.getZ());
+        moveTo(new Point(11.21, -9.8, 4.79), q);
+        Log.d("23456", "1");
         moveTo(z, q);
+        Log.d("23456", "2");
         moveTo(a_, q);
+        Log.d("23456", "3");
+
     }
     public void pattern178(Point a_, Quaternion q){
         Point z = new Point(11.52f, -10f, a_.getZ());
         moveTo(new Point(11.52f, -10f, 5f), q);
+        Log.d("178", "1");
         moveTo(z, q);
+        Log.d("178", "2");
         moveTo(a_, q);
-
+        Log.d("178", "3");
     }
     public void endGame(){
         Point b = new Point(10.6, -8.0, 4.5);
