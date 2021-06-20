@@ -50,6 +50,8 @@ import jp.jaxa.iss.kibo.rpc.api.KiboRpcApi;
 import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
 
 import static android.graphics.Bitmap.createBitmap;
+import static org.opencv.core.CvType.CV_64FC1;
+
 import android.graphics.Bitmap;
 
 public class YourService extends KiboRpcService {
@@ -118,29 +120,29 @@ public class YourService extends KiboRpcService {
      *                        Aim Laser
      **************************************************************************/
 
-//    public void get_undistort_info(Mat cam_Matrix,Mat dist_Coeff, Mat map1, Mat map2,Mat src)
-//    {
-//
-//        Size size = src.size();
-//
-//        Imgproc.initUndistortRectifyMap(cam_Matrix, dist_Coeff,
-//                null, cam_Matrix, size, CV_32FC1, map1, map2);
-//
-//        Log.d("Debug map1",map1.dump());
-//        Log.d("Debug map2",map2.dump());
-//    }
-    public Mat undistortImg(Mat cam_Matrix,Mat dist_Coeff,Mat src)
+    public void get_undistort_info(Mat cam_Matrix,Mat dist_Coeff, Mat map1, Mat map2,Mat src)
+    {
+
+        Size size = src.size();
+
+        Imgproc.initUndistortRectifyMap(cam_Matrix, dist_Coeff,
+                null, cam_Matrix, size, CV_32FC1, map1, map2);
+
+        Log.d("Debug map1",map1.dump());
+        Log.d("Debug map2",map2.dump());
+    }
+    public Mat undistortImg(Mat src,Mat map1, Mat map2)
     {
 
         Mat output = new Mat(src.rows(), src.cols(), src.type());
-        Imgproc.undistort(src,output,cam_Matrix,dist_Coeff);
+        Imgproc.remap(src,output, map1, map2, Imgproc.INTER_NEAREST);
 
         return output;
     }
     private Mat getCamIntrinsics()
     {
         //        cam_matrix arr to mat
-        Mat cam_Matrix = new Mat(3,3,CvType.CV_64FC(1));
+        Mat cam_Matrix = new Mat(3,3, CV_64FC1);
         double [][] Nav_Intrinsics = api.getNavCamIntrinsics();
         for (int i = 0; i <= 8; ++i)
         {
@@ -167,7 +169,7 @@ public class YourService extends KiboRpcService {
     {
         //         dat coefficient arr to mat
         double [][] Nav_Intrinsics = api.getNavCamIntrinsics();
-        Mat dist_Coeff = new Mat(1,4,CvType.CV_64FC(1));
+        Mat dist_Coeff = new Mat(1,4,CvType.CV_64FC1);
         for(int i = 0; i<=4 ;i++)
         {
             dist_Coeff.put(0,i,Nav_Intrinsics[1][i]);
@@ -282,13 +284,13 @@ public class YourService extends KiboRpcService {
 
     }
 
-    public void aim(String situation , Mat cam_Matrix,Mat dist_Coeff,Mat src )
+    public void aim(String situation , Mat cam_Matrix,Mat dist_Coeff,Mat src,Mat map1, Mat map2 )
     {
 
         Quaternion cam_orientation = api.getTrustedRobotKinematics().getOrientation();
         Log.d("Current Orientation: ", cam_orientation.toString());
 
-        Mat Nav_Cam_View = undistortImg(cam_Matrix,dist_Coeff,src);
+        Mat Nav_Cam_View = undistortImg(src, map1, map2);
         Mat ids = new Mat();
         List<Mat> corners = new ArrayList<>();
         Dictionary AR_Tag_dict = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
@@ -324,9 +326,7 @@ public class YourService extends KiboRpcService {
 
         Log.d("Corners_Sorted:", corners_sorted.toString());
 
-//        pose estimation
-//        Quaternion cam_orientation = api.getTrustedRobotKinematics().getOrientation();
-//        Log.d("Current Orientation: ", cam_orientation.toString());
+
         float cam_qw = cam_orientation.getW();
         float cam_qx = cam_orientation.getX();
         float cam_qy = cam_orientation.getY();
@@ -410,15 +410,15 @@ public class YourService extends KiboRpcService {
 
     public void laser_Event()
     {
-//        Mat map1 = new Mat();
-//        Mat map2 = new Mat();
+        Mat map1 = new Mat();
+        Mat map2 = new Mat();
         Mat src1 = api.getMatNavCam();
         Mat cam_Matrix = getCamIntrinsics();
         Mat dist_Coeff = getDist_coeff();
-//        get_undistort_info(cam_Matrix,dist_Coeff,map1,map2,src);
-        aim("cam",cam_Matrix,dist_Coeff,src1);
+        get_undistort_info(cam_Matrix,dist_Coeff,map1,map2,src1);
+        aim("cam",cam_Matrix,dist_Coeff,src1,map1,map2);
         Mat src2 = api.getMatNavCam();
-        aim("laser",cam_Matrix,dist_Coeff,src2);
+        aim("laser",cam_Matrix,dist_Coeff,src2,map1,map2);
 //        Quaternion target_orientation = Qua_multiply(first,second);
 //        Point goal = new Point(0,0,0);
 //        api.relativeMoveTo(goal,target_orientation,true);
