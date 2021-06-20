@@ -119,11 +119,17 @@ public class YourService extends KiboRpcService {
      **************************************************************************/
     public Mat undistortImg(Mat src)
     {
+        Mat map1 = new Mat();
+        Mat map2 = new Mat();
         Mat dist_Coeff = getDist_coeff();
         Mat cam_Matrix = getCamIntrinsics();
+        Mat new_cam_Matrix = new Mat(3,3, CvType.CV_64FC(1));
+        Size size = src.size();
         Mat output = new Mat(src.rows(), src.cols(), src.type());
-
-        Imgproc.undistort(src, output, cam_Matrix, dist_Coeff);
+        Imgproc.initUndistortRectifyMap(cam_Matrix,dist_Coeff,
+                Mat.eye(3,3, CvType.CV_64FC(1)),new_cam_Matrix,size,CV_32FC1,map1,map2);
+        Imgproc.remap(src,output,map1,map2,Imgproc.INTER_LINEAR);
+//        Imgproc.undistort(src, output, cam_Matrix, dist_Coeff);
         return output;
     }
     private Mat getCamIntrinsics()
