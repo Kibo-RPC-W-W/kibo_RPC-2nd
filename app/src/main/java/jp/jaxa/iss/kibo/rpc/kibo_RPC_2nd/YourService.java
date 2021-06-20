@@ -286,7 +286,7 @@ public class YourService extends KiboRpcService {
 
     }
 
-    public void aim(String situation , Mat cam_Matrix,Mat dist_Coeff,Mat src,Mat map1, Mat map2 )
+    public Quaternion aim(String situation , Mat cam_Matrix,Mat dist_Coeff,Mat src,Mat map1, Mat map2 )
     {
 
         Quaternion cam_orientation = api.getTrustedRobotKinematics().getOrientation();
@@ -408,15 +408,8 @@ public class YourService extends KiboRpcService {
             Log.d("TARGET QUATERNION[status]:", e.toString());
         }
 
+        return target_orientation;
 
-//        turn
-        Point goal = new Point(0,0,0);
-        api.relativeMoveTo(goal,target_orientation,true);
-
-
-//        api.laserControl(true);
-//        waiting();
-//        api.takeSnapshot();
     }
 
     public void laser_Event()
@@ -427,8 +420,11 @@ public class YourService extends KiboRpcService {
         Mat cam_Matrix = getCamIntrinsics();
         Mat dist_Coeff = getDist_coeff();
         get_undistort_info(cam_Matrix,dist_Coeff,map1,map2,src);
-        aim("cam",cam_Matrix,dist_Coeff,src,map1,map2);
-        aim("laser",cam_Matrix,dist_Coeff,src,map1,map2);
+        Quaternion first = aim("cam",cam_Matrix,dist_Coeff,src,map1,map2);
+        Quaternion second = aim("laser",cam_Matrix,dist_Coeff,src,map1,map2);
+        Quaternion target_orientation = Qua_multiply(first,second);
+        Point goal = new Point(0,0,0);
+        api.relativeMoveTo(goal,target_orientation,true);
         api.laserControl(true);
         waiting();
         api.takeSnapshot();
