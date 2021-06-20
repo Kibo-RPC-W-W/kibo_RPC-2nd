@@ -94,9 +94,7 @@ public class YourService extends KiboRpcService {
         Log.d("IMU", api.getRobotKinematics().getOrientation().toString());
         Log.d("position", api.getRobotKinematics().getPosition().toString());
 
-        for(int i = 0; i < 10; ++i){
-            laser_Event();
-        }
+        laser_Event();
     }
 
 
@@ -117,19 +115,28 @@ public class YourService extends KiboRpcService {
     /**************************************************************************
      *                        Aim Laser
      **************************************************************************/
-    public Mat undistortImg(Mat src)
-    {
-        Mat map1 = new Mat();
-        Mat map2 = new Mat();
-        Mat dist_Coeff = getDist_coeff();
-        Mat cam_Matrix = getCamIntrinsics();
+
+    public void get_undistort_info(Mat cam_Matrix,Mat dist_Coeff, Mat map1, Mat map2,Mat src){
+
         Mat new_cam_Matrix = new Mat(3,3, CvType.CV_64FC(1));
         Size size = src.size();
+
+        try {
+            Imgproc.initUndistortRectifyMap(cam_Matrix, dist_Coeff,
+                    Mat.eye(3, 3, CV_64F), new_cam_Matrix, size, CV_32FC1, map1, map2);
+            Log.d("Debug map1",map1.dump());
+            Log.d("Debug map2",map2.dump());
+        }catch (Exception e){
+            Log.d("Deubug map ERROR",e.toString());
+        }
+
+    }
+    public Mat undistortImg(Mat src,Mat map1,Mat map2)
+    {
+
         Mat output = new Mat(src.rows(), src.cols(), src.type());
-        Imgproc.initUndistortRectifyMap(cam_Matrix,dist_Coeff,
-                Mat.eye(3,3, CV_64F),new_cam_Matrix,size,CV_32FC1,map1,map2);
         Imgproc.remap(src,output,map1,map2,Imgproc.INTER_LINEAR);
-//        Imgproc.undistort(src, output, cam_Matrix, dist_Coeff);
+
         return output;
     }
     private Mat getCamIntrinsics()
@@ -277,11 +284,9 @@ public class YourService extends KiboRpcService {
 
     }
 
-    public double[][] get_cross_vecs( Quaternion cam_orientation)
+    public double[][] get_cross_vecs( Quaternion cam_orientation, Mat cam_Matrix,Mat dist_Coeff,Mat src,Mat map1, Mat map2)
     {
-        Mat Nav_Cam_View = undistortImg(api.getMatNavCam());
-        Mat cam_Matrix = getCamIntrinsics();
-        Mat dist_Coeff = getDist_coeff();
+        Mat Nav_Cam_View = undistortImg(src,map1,map2);
         Mat ids = new Mat();
         List<Mat> corners = new ArrayList<>();
         Dictionary AR_Tag_dict = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
@@ -368,99 +373,18 @@ public class YourService extends KiboRpcService {
         return output;
     }
 
-    public void aim(String situation)
+    public void aim(String situation , Mat cam_Matrix,Mat dist_Coeff,Mat src,Mat map1, Mat map2 )
     {
-//        Mat Nav_Cam_View = undistortImg(api.getMatNavCam());
-//        Mat cam_Matrix = getCamIntrinsics();
-//        Mat dist_Coeff = getDist_coeff();
-//        Mat ids = new Mat();
-//        List<Mat> corners = new ArrayList<>();
-//        Dictionary AR_Tag_dict = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
 
         Quaternion cam_orientation = api.getTrustedRobotKinematics().getOrientation();
         Log.d("Current Orientation: ", cam_orientation.toString());
 
 
-        double[][] cross_vecs = get_cross_vecs(cam_orientation);
+        double[][] cross_vecs = get_cross_vecs(cam_orientation, cam_Matrix,dist_Coeff,src,map1,map2);
         double[] cam_dir_k = cross_vecs[0];
         double[] target_vec_abs = cross_vecs[1];
         double[] laser_target_vec = cross_vecs[2];
 //                    get target position in view img
-//        Aruco.detectMarkers(Nav_Cam_View, AR_Tag_dict, corners, ids);
-//
-//        if(!corners.isEmpty()) {
-//            Log.d("AR[status]:", " Detected");
-//            Log.d("AR[status]", corners.toString());
-//            Log.d("AR[status]", corners.size() + " ");
-//            Log.d("AR[status]", ids.dump());
-//        }else{
-//            Log.d("AR[status]:", "Detected");
-//        }
-//
-////        aim relative to Nav_cam's point of view
-//
-//        Mat[] corners_sorted = new Mat[4];
-//        //            sort corners 1234
-//        for(int i = 0; i < 4; ++i)
-//        {
-//            int id = (int)ids.get(i, 0)[0];
-////            Log.d("Debug", "1");
-////            ids_sorted[id-1] = id;
-//            Mat vec = corners.get(i);
-////            Log.d("Debug", "2");
-//
-//            corners_sorted[id - 1] = vec;
-////            Log.d("Debug", "3");
-//
-//        }
-//
-//        Log.d("Corners_Sorted:", corners_sorted.toString());
-//
-////        pose estimation
-////        Quaternion cam_orientation = api.getTrustedRobotKinematics().getOrientation();
-////        Log.d("Current Orientation: ", cam_orientation.toString());
-////        float cam_qw = cam_orientation.getW();
-////        float cam_qx = cam_orientation.getX();
-////        float cam_qy = cam_orientation.getY();
-////        float cam_qz = cam_orientation.getZ();
-//
-//        double[][] rotation_abs_to_cam = qua_to_rotation_mat(cam_qw,cam_qx,cam_qy,cam_qz);
-//
-//        double[] original_dir_i = {0,-1,0};
-//        double[] original_dir_j = {0,0,-1};
-//        double[] original_dir_k = {1,0,0};
-//
-//
-//        double[] cam_dir_k = multiply_mat_vec(rotation_abs_to_cam, original_dir_k);
-//        double[] cam_dir_i = multiply_mat_vec(rotation_abs_to_cam, original_dir_i);
-//        double[] cam_dir_j = multiply_mat_vec(rotation_abs_to_cam, original_dir_j);
-//
-//        to_unit_vector(cam_dir_i);
-//        to_unit_vector(cam_dir_j);
-//        to_unit_vector(cam_dir_k);
-//
-//        Mat rvecs = new Mat(4,3, CvType.CV_64FC(1));
-//        Mat tvecs =new Mat(4,3, CvType.CV_64FC(1));
-//        Log.d("AR[status]", "start estimate");
-//        Aruco.estimatePoseSingleMarkers(Arrays.asList(corners_sorted), 0.05f, cam_Matrix, dist_Coeff, rvecs, tvecs);
-//        Log.d("AR[status]", "end estimate");
-////        maybe, yep here
-//        double[] p2 = new double[3];
-//        p2[0] = tvecs.get(1, 0)[0];
-//        p2[1] = tvecs.get(1, 1)[0];
-//        p2[2] = tvecs.get(1, 2)[0];
-//        double[] p4 = new double[3];
-//        p4[0] = tvecs.get(3, 0)[0];
-//        p4[1] = tvecs.get(3, 1)[0];
-//        p4[2] = tvecs.get(3, 2)[0];
-//        double[] target_vec_cam = get_midpoint(p2, p4);
-//
-//
-//        double[][] t_mat = new double[3][3];
-//        t_mat[0] = cam_dir_i; t_mat[1] = cam_dir_j; t_mat[2] = cam_dir_k;
-//        double[] target_vec_abs = multiply_mat_vec(t_mat, target_vec_cam);
-
-//        get theta between camZ and target_vec_abs
 
 
 
@@ -509,8 +433,14 @@ public class YourService extends KiboRpcService {
 
     public void laser_Event()
     {
-        aim("cam");
-        aim("laser");
+        Mat map1 = new Mat();
+        Mat map2 = new Mat();
+        Mat src = api.getMatNavCam();
+        Mat cam_Matrix = getCamIntrinsics();
+        Mat dist_Coeff = getDist_coeff();
+        get_undistort_info(cam_Matrix,dist_Coeff,map1,map2,src);
+        aim("cam",cam_Matrix,dist_Coeff,src,map1,map2);
+        aim("laser",cam_Matrix,dist_Coeff,src,map1,map2);
         api.laserControl(true);
         waiting();
         api.takeSnapshot();
