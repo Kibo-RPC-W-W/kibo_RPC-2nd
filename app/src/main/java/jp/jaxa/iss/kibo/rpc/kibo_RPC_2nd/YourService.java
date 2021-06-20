@@ -95,6 +95,8 @@ public class YourService extends KiboRpcService {
         Log.d("position", api.getRobotKinematics().getPosition().toString());
 
         laser_Event();
+
+        endGame();
     }
 
 
@@ -377,10 +379,10 @@ public class YourService extends KiboRpcService {
 //        cross camZ and target_vec_abs
         double[] angle_info = new double[2];
         double[] Vec_A = new double[3];
-        if(situation == "cam") {
+        if(situation.equals("cam")) {
             crossProduct(cam_dir_k, target_vec_abs, Vec_A);
             angle_info = get_angle_info(cam_dir_k, target_vec_abs);
-        }else if(situation == "laser"){
+        }else if(situation.equals("laser")){
             crossProduct(laser_target_vec,target_vec_abs,Vec_A);
             angle_info = get_angle_info(laser_target_vec, target_vec_abs);
         }
