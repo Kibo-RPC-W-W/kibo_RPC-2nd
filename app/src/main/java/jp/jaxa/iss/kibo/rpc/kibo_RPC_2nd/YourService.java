@@ -284,8 +284,12 @@ public class YourService extends KiboRpcService {
 
     }
 
-    public double[][] get_cross_vecs( Quaternion cam_orientation, Mat cam_Matrix,Mat dist_Coeff,Mat src,Mat map1, Mat map2)
+    public void aim(String situation , Mat cam_Matrix,Mat dist_Coeff,Mat src,Mat map1, Mat map2 )
     {
+
+        Quaternion cam_orientation = api.getTrustedRobotKinematics().getOrientation();
+        Log.d("Current Orientation: ", cam_orientation.toString());
+
         Mat Nav_Cam_View = undistortImg(src,map1,map2);
         Mat ids = new Mat();
         List<Mat> corners = new ArrayList<>();
@@ -362,31 +366,13 @@ public class YourService extends KiboRpcService {
 
         double[] laser_cam_vec =
                 {target_vec_cam[0] - 0.0994,
-                target_vec_cam[1] - (-0.0285),
-                target_vec_cam[2]};
+                        target_vec_cam[1] - (-0.0285),
+                        target_vec_cam[2]};
 
         double[][] t_mat = new double[3][3];
         t_mat[0] = cam_dir_i; t_mat[1] = cam_dir_j; t_mat[2] = cam_dir_k;
         double[] target_vec_abs = multiply_mat_vec(t_mat, target_vec_cam);
-        double[][] output = {cam_dir_k,target_vec_abs,laser_cam_vec};
-
-        return output;
-    }
-
-    public void aim(String situation , Mat cam_Matrix,Mat dist_Coeff,Mat src,Mat map1, Mat map2 )
-    {
-
-        Quaternion cam_orientation = api.getTrustedRobotKinematics().getOrientation();
-        Log.d("Current Orientation: ", cam_orientation.toString());
-
-
-        double[][] cross_vecs = get_cross_vecs(cam_orientation, cam_Matrix,dist_Coeff,src,map1,map2);
-        double[] cam_dir_k = cross_vecs[0];
-        double[] target_vec_abs = cross_vecs[1];
-        double[] laser_target_vec = cross_vecs[2];
-//                    get target position in view img
-
-
+        double[] laser_target_vec = multiply_mat_vec(t_mat, laser_cam_vec);
 
 //        cross camZ and target_vec_abs
         double[] angle_info = new double[2];
