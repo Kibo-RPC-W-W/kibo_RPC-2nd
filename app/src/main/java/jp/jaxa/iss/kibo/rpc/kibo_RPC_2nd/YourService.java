@@ -361,7 +361,7 @@ public class YourService extends KiboRpcService {
         p4[1] = tvecs.get(3, 1)[0];
         p4[2] = tvecs.get(3, 2)[0];
         double[] target_vec_cam = get_midpoint(p2, p4);
-        target_vec_cam[1] = target_vec_cam[1] + 0.2;
+//        target_vec_cam[1] = target_vec_cam[1] + 0.2;
 
         double[] laser_cam_vec =
                 {target_vec_cam[0] - 0.0994,
@@ -377,11 +377,21 @@ public class YourService extends KiboRpcService {
         double[] angle_info = new double[2];
         double[] Vec_A = new double[3];
         if(situation.equals("cam")) {
-            crossProduct(cam_dir_k, target_vec_abs, Vec_A);
-            angle_info = get_angle_info(cam_dir_k, target_vec_abs);
+            if(target_vec_cam[0] < 0) {
+                crossProduct(target_vec_abs, cam_dir_k, Vec_A);
+                angle_info = get_angle_info(cam_dir_k, target_vec_abs);
+            }else{
+                crossProduct(cam_dir_k, target_vec_abs,  Vec_A);
+                angle_info = get_angle_info(cam_dir_k, target_vec_abs);
+            }
         }else if(situation.equals("laser")){
-            crossProduct(laser_target_vec,target_vec_abs,Vec_A);
-            angle_info = get_angle_info(laser_target_vec, target_vec_abs);
+            if(target_vec_cam[0] < 0) {
+                crossProduct(target_vec_abs, laser_target_vec, Vec_A);
+                angle_info = get_angle_info(laser_target_vec, target_vec_abs);
+            }else {
+                crossProduct(laser_target_vec, target_vec_abs, Vec_A);
+                angle_info = get_angle_info(laser_target_vec, target_vec_abs);
+            }
         }
         crossProduct(cam_dir_k, target_vec_abs, Vec_A);
 //        angle_info = get_angle_info(cam_dir_k, target_vec_abs);
