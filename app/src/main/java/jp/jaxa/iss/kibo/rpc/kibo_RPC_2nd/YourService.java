@@ -4,7 +4,9 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.google.zxing.BinaryBitmap;
+import com.google.zxing.DecodeHintType;
 import com.google.zxing.RGBLuminanceSource;
+import com.google.zxing.common.GlobalHistogramBinarizer;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
@@ -18,7 +20,9 @@ import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import gov.nasa.arc.astrobee.Kinematics;
 import gov.nasa.arc.astrobee.types.Point;
@@ -83,13 +87,21 @@ public class YourService extends KiboRpcService {
     }
 
     private void moveTo(Point p, Quaternion q, boolean direction){
-        Point robotPose;
+        Point robotPose, output;
         double x, y, z, error, tolerance = 0.3d;
         int time = 0;
         do {
+            if(time == 0){
+                double outputX = p.getX() * 0.01;
+                double outputY = p.getY() * 0.011;
+                double outputZ = p.getZ() * 0.008;
+                output = new Point(outputX, outputY, outputZ);
+            }else{
+                output = p;
+            }
             error = 0;
             Kinematics kinematics = api.getRobotKinematics();
-            api.moveTo(p, q, true);
+            api.moveTo(output, q, true);
             robotPose = kinematics.getPosition();
             x = Math.abs(p.getX() - robotPose.getX());
             y = Math.abs(p.getY() - robotPose.getY());
@@ -103,59 +115,76 @@ public class YourService extends KiboRpcService {
                 tolerance = 0.33d;
             }
             ++time;
-        } while (error > tolerance && time < 2);
+            if(time > 2){
+                tolerance *= 1.1;
+            }
+        } while (error > tolerance && time < 3);
     }
 
     /**************************************************************************
      *                        Aim Laser
      **************************************************************************/
+    public void laser_Event()
+    {
+//        Mat map1 = new Mat();
+//        Mat map2 = new Mat();
+        Mat src1 = api.getMatNavCam();
+        Mat cam_Matrix = getCamIntrinsics();
+        Mat dist_Coeff = getDist_coeff();
+//        get_undistort_info(cam_Matrix,dist_Coeff,map1,map2,src);
+        aim("cam",cam_Matrix,dist_Coeff,src1);
+        Mat src2 = api.getMatNavCam();
+        aim("laser",cam_Matrix,dist_Coeff,src2);
+//        Quaternion target_orientation = Qua_multiply(first,second);
+//        Point goal = new Point(0,0,0);
+//        api.relativeMoveTo(goal,target_orientation,true);
+        api.laserControl(true);
+        waiting();
+        api.takeSnapshot();
+
+    }
     public void get_undistort_info(Mat cam_Matrix,Mat dist_Coeff, Mat map1, Mat map2,Mat src){
 
-        Mat new_cam_Matrix = new Mat(3,3, CvType.CV_64FC(1));
+        Mat new_cam_Matrix = Mat.eye(3, 3, cam_Matrix.type());
         Size size = src.size();
+        Log.d("Debug", "QQ");
 
-        try {
-            Imgproc.initUndistortRectifyMap(cam_Matrix, dist_Coeff,
-                    Mat.eye(3, 3, CvType.CV_64F), new_cam_Matrix, size, CvType.CV_32FC1, map1, map2);
-            Log.d("Debug map1",map1.dump());
-            Log.d("Debug map2",map2.dump());
-        }catch (Exception e){
-            Log.d("Deubug map ERROR",e.toString());
-        }
+        Imgproc.initUndistortRectifyMap(cam_Matrix, dist_Coeff,
+                Mat.eye(3, 3, CvType.CV_64FC(1)), cam_Matrix, size, CvType.CV_32FC1, map1, map2);
+        Log.d("Debug map1",map1.dump());
+        Log.d("Debug map2",map2.dump());
+
 
     }
     public Mat undistortImg(Mat src,Mat map1,Mat map2)
     {
-
         Mat output = new Mat(src.rows(), src.cols(), src.type());
         Imgproc.remap(src,output,map1,map2,Imgproc.INTER_LINEAR);
 
         return output;
     }
-    private Mat getCamIntrinsics()
+    public Mat undistortImg(Mat src)
     {
+        Mat dist_Coeff = getDist_coeff();
+        Mat cam_Matrix = getCamIntrinsics();
+        Mat output = new Mat(src.rows(), src.cols(), src.type());
+        if(src == null){
+            Log.d("Debug_undistort", "src == null");
+        }
+        Imgproc.undistort(src, output, cam_Matrix, dist_Coeff);
+        Log.d("Debug_undistort", "pass");
+        return output;
+    }
+    private Mat getCamIntrinsics(){
         //        cam_matrix arr to mat
-        Mat cam_Matrix = new Mat(1,8,CvType.CV_64FC(1));
-        double [][] Nav_Intrinsics = api.getNavCamIntrinsics();
-        for (int i = 0; i <= 8; ++i)
-        {
-            int row , col ;
-
-            if(i < 3){
-                row = 0;col = i;
-            } else if(i<6){
-                row = 1;col = i-3;
-            } else{
-                row = 2;col = i-6;
+        Mat cam_Matrix = new Mat(3, 3, CV_64FC1);
+        double [] nav_intrinsics = api.getNavCamIntrinsics()[0];
+        for(int i = 0; i < 3; ++i){
+            for(int j = 0; j < 3; ++j){
+                cam_Matrix.put(i, j, nav_intrinsics[i * 3 + j]);
             }
-
-            cam_Matrix.put(row, col, Nav_Intrinsics[0][i]);
         }
-        if(!cam_Matrix.empty()) {
-            Log.d("Get Cam_Matrix[status]:", "Acquired");
-        }else{
-            Log.d("Get Cam_Matrix[status]:", "Not Acquired");
-        }
+        Log.d("Get cam_Matrix[status]", "Acquired");
         return cam_Matrix;
     }
     private Mat getDist_coeff()
@@ -277,13 +306,13 @@ public class YourService extends KiboRpcService {
 
     }
 
-    public Quaternion aim(String situation , Mat cam_Matrix,Mat dist_Coeff,Mat src,Mat map1, Mat map2 )
+    public void aim(String situation, Mat cam_Matrix, Mat dist_Coeff, Mat src)
     {
 
         Quaternion cam_orientation = api.getTrustedRobotKinematics().getOrientation();
         Log.d("Current Orientation: ", cam_orientation.toString());
 
-        Mat Nav_Cam_View = undistortImg(src,map1,map2);
+        Mat Nav_Cam_View = (src);
         Mat ids = new Mat();
         List<Mat> corners = new ArrayList<>();
         Dictionary AR_Tag_dict = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
@@ -393,28 +422,9 @@ public class YourService extends KiboRpcService {
             Log.d("TARGET QUATERNION[status]:", e.toString());
         }
 
-        return target_orientation;
-
     }
 
-    public void laser_Event()
-    {
-        Mat map1 = new Mat();
-        Mat map2 = new Mat();
-        Mat src = api.getMatNavCam();
-        Mat cam_Matrix = getCamIntrinsics();
-        Mat dist_Coeff = getDist_coeff();
-        get_undistort_info(cam_Matrix,dist_Coeff,map1,map2,src);
-        Quaternion first = aim("cam",cam_Matrix,dist_Coeff,src,map1,map2);
-        Quaternion second = aim("laser",cam_Matrix,dist_Coeff,src,map1,map2);
-        Quaternion target_orientation = Qua_multiply(first,second);
-        Point goal = new Point(0,0,0);
-        api.relativeMoveTo(goal,target_orientation,true);
-        api.laserControl(true);
-        waiting();
-        api.takeSnapshot();
-
-    }    /**************************************************************************
+    /**************************************************************************
      *                        To A'  To B
      **************************************************************************/
     public void pattern23456(Point a_, Quaternion q){
@@ -451,7 +461,7 @@ public class YourService extends KiboRpcService {
         }else if(ap >= 5 && ap <= 6){
             end56();
         }
-        moveTo(b, q);
+//        moveTo(b, q);
         api.reportMissionCompletion();
     }
     public void end12348(){
@@ -461,7 +471,7 @@ public class YourService extends KiboRpcService {
         Point step3 = new Point(10.5, -8.4, b.getZ());
         moveTo(step1, q);
         moveTo(step2, q);
-        moveTo(step3, q);
+        moveTo(b, q);
     }
     public void end7(){
         Point step1 = new Point(11.47f, -10f, a_.getZ());
@@ -473,7 +483,7 @@ public class YourService extends KiboRpcService {
         Point step1 = new Point(10.5, -9.5, curr.getZ());
         Point step2 = new Point(10.5, -8.4, b.getZ());
         moveTo(step1, q);
-        moveTo(step2, q);
+        moveTo(b, q);
     }
 
     /**************************************************************************
@@ -487,7 +497,12 @@ public class YourService extends KiboRpcService {
             int[] pixel = new int[width * height];
             bitmap.getPixels(pixel,0,width,0,0,width,height);
             RGBLuminanceSource rgbLuminanceSource = new RGBLuminanceSource(width,height,pixel);
-            BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(rgbLuminanceSource));
+            BinaryBitmap binaryBitmap = new BinaryBitmap(new GlobalHistogramBinarizer(rgbLuminanceSource));
+            Map<DecodeHintType, Object> hint = new HashMap<DecodeHintType, Object>();
+
+//            hint.put(DecodeHintType.CHARACTER_SET, "UTF-8");
+            hint.put(DecodeHintType.PURE_BARCODE, true);
+
             Log.d("Time", "before create instance");
             QRCodeReader qrCodeReader = new QRCodeReader();
             Log.d("Time", "after create instance");
