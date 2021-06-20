@@ -127,7 +127,7 @@ public class YourService extends KiboRpcService {
         Size size = src.size();
         Mat output = new Mat(src.rows(), src.cols(), src.type());
         Imgproc.initUndistortRectifyMap(cam_Matrix,dist_Coeff,
-                Mat.eye(3,3, CvType.CV_64FC(1)),new_cam_Matrix,size,CV_32FC1,map1,map2);
+                Mat.eye(3,3, CV_64F),new_cam_Matrix,size,CV_32FC1,map1,map2);
         Imgproc.remap(src,output,map1,map2,Imgproc.INTER_LINEAR);
 //        Imgproc.undistort(src, output, cam_Matrix, dist_Coeff);
         return output;
