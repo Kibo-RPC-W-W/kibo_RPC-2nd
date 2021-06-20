@@ -363,28 +363,28 @@ public class YourService extends KiboRpcService {
         double[] target_vec_cam = get_midpoint(p2, p4);
         target_vec_cam[1] = target_vec_cam[1] + 0.2;
 
-//        double[] laser_cam_vec =
-//                {target_vec_cam[0] - 0.0994,
-//                        target_vec_cam[1] - (-0.0285),
-//                        target_vec_cam[2] - 0.0125};
+        double[] laser_cam_vec =
+                {target_vec_cam[0] - 0.0994,
+                        target_vec_cam[1] - (-0.0285),
+                        target_vec_cam[2] - 0.0125};
 
         double[][] t_mat = new double[3][3];
         t_mat[0] = cam_dir_i; t_mat[1] = cam_dir_j; t_mat[2] = cam_dir_k;
         double[] target_vec_abs = multiply_mat_vec(t_mat, target_vec_cam);
-//        double[] laser_target_vec = multiply_mat_vec(t_mat, laser_cam_vec);
+        double[] laser_target_vec = multiply_mat_vec(t_mat, laser_cam_vec);
 
 //        cross camZ and target_vec_abs
-//        double[] angle_info = new double[2];
+        double[] angle_info = new double[2];
         double[] Vec_A = new double[3];
-//        if(situation.equals("cam")) {
-//            crossProduct(cam_dir_k, target_vec_abs, Vec_A);
-//            angle_info = get_angle_info(cam_dir_k, target_vec_abs);
-//        }else if(situation.equals("laser")){
-//            crossProduct(laser_target_vec,target_vec_abs,Vec_A);
-//            angle_info = get_angle_info(laser_target_vec, target_vec_abs);
-//        }
+        if(situation.equals("cam")) {
+            crossProduct(cam_dir_k, target_vec_abs, Vec_A);
+            angle_info = get_angle_info(cam_dir_k, target_vec_abs);
+        }else if(situation.equals("laser")){
+            crossProduct(laser_target_vec,target_vec_abs,Vec_A);
+            angle_info = get_angle_info(laser_target_vec, target_vec_abs);
+        }
         crossProduct(cam_dir_k, target_vec_abs, Vec_A);
-        double[] angle_info = get_angle_info(cam_dir_k, target_vec_abs);
+//        angle_info = get_angle_info(cam_dir_k, target_vec_abs);
 
         to_unit_vector(Vec_A);
 //        get quaternion from cross and theta
@@ -420,8 +420,8 @@ public class YourService extends KiboRpcService {
         Mat dist_Coeff = getDist_coeff();
         get_undistort_info(cam_Matrix,dist_Coeff,map1,map2,src1);
         aim("cam",cam_Matrix,dist_Coeff,src1,map1,map2);
-//        Mat src2 = api.getMatNavCam();
-//        aim("laser",cam_Matrix,dist_Coeff,src2,map1,map2);
+        Mat src2 = api.getMatNavCam();
+        aim("laser",cam_Matrix,dist_Coeff,src2,map1,map2);
 //        Quaternion target_orientation = Qua_multiply(first,second);
 //        Point goal = new Point(0,0,0);
 //        api.relativeMoveTo(goal,target_orientation,true);
