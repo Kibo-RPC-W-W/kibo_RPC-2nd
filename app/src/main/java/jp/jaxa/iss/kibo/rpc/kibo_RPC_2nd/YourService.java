@@ -57,7 +57,7 @@ public class YourService extends KiboRpcService {
         Quaternion q1 = new Quaternion(0f, 0f, -0.707f, 0.71f);
         Log.d("START", "move to a");
 
-        moveTo(p1, q1);
+        specificMoveTo(p1, q1, true, false, true, true);
 
         //show point A info
         Log.d("IMU", api.getRobotKinematics().getOrientation().toString());
@@ -88,7 +88,6 @@ public class YourService extends KiboRpcService {
         api.laserControl(false);
         endGame();
     }
-
 
     private void moveTo(Point p, Quaternion q){
         moveTo(p, q, false);
@@ -185,19 +184,47 @@ public class YourService extends KiboRpcService {
         double[] p4 = tvecs.get(2, 0);
         double[] transVec = get_midpoint(p2, p4);
         double[][] rotationMatrix = {
-                {0, 0, 0},
+                {1, 0, 0},
                 {0, 0, -1},
                 {0, 1, 0}
         };
-        transVec = vecRotation(transVec, q);
+        double[] camToRobot = vecModify(transVec);
+        camToRobot = vecRotation(camToRobot, quaInverse(q));
+
+        //rotate to align axis
+        transVec = vecRotation(transVec, quaInverse(q));
+        Log.d("transVec[camera]", Arrays.toString(transVec));
+        //rotate to match axis
         transVec = vecRotation(transVec, rotationMatrix);
+        Log.d("transVec[wcs]", Arrays.toString(transVec));
+        //change to robot
+        add(transVec, camToRobot);
+        //get angle & multiply to quaternion
         q = QuaternionMultiply(q, eulerToQuaternion(new double[]{1, 0, 0}, getRoll(transVec)));
         Log.d("Target pose1", q.toString());
         q = QuaternionMultiply(q, eulerToQuaternion(new double[]{0, 1, 0}, getPitch(transVec)));
         Log.d("Target pose2", q.toString());
         q = QuaternionMultiply(q, eulerToQuaternion(new double[]{0, 0, 1}, getYaw(transVec)));
         Log.d("Target pose3", q.toString());
+
         api.relativeMoveTo(new Point(), q, true);
+        Log.d("QQ", "Done");
+
+    }public void add(double[] v, double[] m){
+        if(v.length != m.length){
+            System.out.println("Bad add");
+            return;
+        }
+        for(int i = 0; i < v.length; ++i){
+            v[i] += m[i];
+        }
+    }
+    public double[] vecModify(double[] v){
+        double[] m = new double[3];
+        m[2] += Math.copySign(0.0826, v[2]);
+        m[0] += Math.copySign(0.1177, -v[0]);
+        m[1] += 0.0422;
+        return m;
     }
     public Quaternion eulerToQuaternion(double[] v, double rad){
         double w = Math.cos(rad/2);
@@ -206,15 +233,21 @@ public class YourService extends KiboRpcService {
     }
     //繞Z軸
     public double getYaw(double[] v){
-        return Math.atan(v[1]/v[0]);
+        double r = Math.atan(v[1]/v[0]);
+        Log.d("Yaw", String.valueOf(r));
+        return r;
     }
     //繞X軸
     public double getRoll(double[] v){
-        return Math.atan(v[1]/v[2]);
+        double r =  Math.atan(v[1]/v[2]);
+        Log.d("Roll", String.valueOf(r));
+        return r;
     }
     //繞Y軸
     public double getPitch(double[] v){
-        return Math.atan(v[0]/v[2]);
+        double r =  Math.atan(v[0]/v[2]);
+        Log.d("Pitch", String.valueOf(r));
+        return r;
     }
     public Quaternion quaInverse(Quaternion q){
         return new Quaternion(-q.getX(), -q.getY(), -q.getZ(), q.getW());
@@ -451,7 +484,7 @@ public class YourService extends KiboRpcService {
         moveTo(step1, q);
         moveTo(a_, q);
     }
-    public void specificMoveTo(Point p, Quaternion q, boolean ax, boolean ay, boolean az){
+    public void specificMoveTo(Point p, Quaternion q, boolean ax, boolean ay, boolean az, boolean direction){
         Point robotPose, output;
         double error, tolerance = 0.11d;
         int time = 0;
@@ -472,7 +505,12 @@ public class YourService extends KiboRpcService {
 
             if(az)
                 error += Math.abs(p.getZ() - robotPose.getZ());
-
+            if(direction){
+                double w = Math.abs(kinematics.getOrientation().getW() - q.getW());
+                error += w;
+                tolerance = 0.33d;
+            }
+            ++time;
         } while (error > tolerance && time < 2);
     }
     public void endGame(){
@@ -497,7 +535,7 @@ public class YourService extends KiboRpcService {
     }
     public void end7(){
         Point step1 = new Point(11.47f, -10f, a_.getZ());
-        specificMoveTo(step1, q, true, false, false);
+        specificMoveTo(step1, q, true, false, false, false);
 
         Point curr = api.getTrustedRobotKinematics().getPosition();
         Point step2 = new Point(curr.getX(), curr.getY(), b.getZ() + 0.15);
@@ -523,7 +561,7 @@ public class YourService extends KiboRpcService {
             int width = bitmap.getWidth();
             int height = bitmap.getHeight();
             int[] pixel = new int[(width / 2) * (height / 2)];
-            bitmap.getPixels(pixel,0, width / 2,width / 4,height / 4, width / 2, height / 2);
+            bitmap.getPixels(pixel,0, width / 2,(width / 4) + width / 8,height / 4, width / 2, height / 2);
             RGBLuminanceSource rgbLuminanceSource = new RGBLuminanceSource(width / 2,height / 2, pixel);
             BinaryBitmap binaryBitmap = new BinaryBitmap(new GlobalHistogramBinarizer(rgbLuminanceSource));
 
