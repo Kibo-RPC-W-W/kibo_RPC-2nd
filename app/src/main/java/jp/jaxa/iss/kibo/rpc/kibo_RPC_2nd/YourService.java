@@ -79,11 +79,11 @@ public class YourService extends KiboRpcService {
         }else{
             pattern18(a_, q);
         }
-        Log.d("IMU", api.getRobotKinematics().getOrientation().toString());
+//        Log.d("IMU", api.getRobotKinematics().getOrientation().toString());
         Log.d("position", api.getRobotKinematics().getPosition().toString());
-        laser_Event();
-//        api.laserControl(true);
-//        api.takeSnapshot();
+//        laser_Event();
+        api.laserControl(true);
+        api.takeSnapshot();
         Log.d("Debug__", "shot");
         api.laserControl(false);
         endGame();
@@ -146,7 +146,7 @@ public class YourService extends KiboRpcService {
     }
 
     public void aim(Mat cam_Matrix, Mat dist_Coeff){
-        Mat Nav_Cam_View = undistortImg(api.getMatNavCam());
+        Mat Nav_Cam_View = (api.getMatNavCam());
         Mat ids = new Mat();
         Quaternion q = api.getTrustedRobotKinematics().getOrientation();
         Log.d("Current Pose", q.toString());
@@ -157,9 +157,9 @@ public class YourService extends KiboRpcService {
 
         if(!corners.isEmpty()) {
             Log.d("AR[status]:", " Detected");
-            Log.d("AR[status]", corners.toString());
-            Log.d("AR[status]", corners.size() + " ");
-            Log.d("AR[status]", ids.dump());
+//            Log.d("AR[status]", corners.toString());
+//            Log.d("AR[status]", corners.size() + " ");
+//            Log.d("AR[status]", ids.dump());
         }else{
             Log.d("AR[status]:", "Detected");
         }
@@ -173,32 +173,37 @@ public class YourService extends KiboRpcService {
             Mat vec = corners.get(i);
             corners_sorted[id - 1] = vec;
         }
-        Log.d("Corners_Sorted:", corners_sorted.toString());
+//        Log.d("Corners_Sorted:", corners_sorted.toString());
 
         Mat rvecs = new Mat(4,3, CvType.CV_64FC(1));
         Mat tvecs =new Mat(4,3, CvType.CV_64FC(1));
-        Log.d("AR[status]", "start estimate");
+//        Log.d("AR[status]", "start estimate");
         Aruco.estimatePoseSingleMarkers(Arrays.asList(corners_sorted), 0.05f, cam_Matrix, dist_Coeff, rvecs, tvecs);
-        Log.d("AR[status]", "end estimate");
+//        Log.d("AR[status]", "end estimate");
         double[] p2 = tvecs.get(0, 0);
         double[] p4 = tvecs.get(2, 0);
         double[] transVec = get_midpoint(p2, p4);
-        double[][] rotationMatrix = {
+        double[][] rotationMatrixA = {
                 {1, 0, 0},
-                {0, 0, -1},
-                {0, 1, 0}
+                {0, 0, 1},
+                {0, -1, 0}
         };
+
         double[] camToRobot = vecModify(transVec);
         camToRobot = vecRotation(camToRobot, quaInverse(q));
 
         //rotate to align axis
         transVec = vecRotation(transVec, quaInverse(q));
+        camToRobot = vecRotation(camToRobot, rotationMatrixA);
         Log.d("transVec[camera]", Arrays.toString(transVec));
         //rotate to match axis
-        transVec = vecRotation(transVec, rotationMatrix);
+        transVec = vecRotation(transVec, rotationMatrixA);
+//        transVec = vecRotation(transVec, rotationMatrixB);
         Log.d("transVec[wcs]", Arrays.toString(transVec));
+
         //change to robot
         add(transVec, camToRobot);
+
         //get angle & multiply to quaternion
         q = QuaternionMultiply(q, eulerToQuaternion(new double[]{1, 0, 0}, getRoll(transVec)));
         Log.d("Target pose1", q.toString());
@@ -561,7 +566,7 @@ public class YourService extends KiboRpcService {
             int width = bitmap.getWidth();
             int height = bitmap.getHeight();
             int[] pixel = new int[(width / 2) * (height / 2)];
-            bitmap.getPixels(pixel,0, width / 2,(width / 4) + width / 8,height / 4, width / 2, height / 2);
+            bitmap.getPixels(pixel,0, width / 2,(width / 4),height / 4, width / 2, height / 2);
             RGBLuminanceSource rgbLuminanceSource = new RGBLuminanceSource(width / 2,height / 2, pixel);
             BinaryBitmap binaryBitmap = new BinaryBitmap(new GlobalHistogramBinarizer(rgbLuminanceSource));
 

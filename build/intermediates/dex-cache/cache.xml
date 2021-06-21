@@ -435,21 +435,21 @@
     </item>
     <item
         is-multidex="true"
-        jar="C:\Users\9987j\.android\build-cache\144e0a9e4b6181351908f554bd37d430330baae5\output\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="26.0.2"
-        sha1="2442771a5590dd4eb4bce00c2e9dca9e22e4c963">
-        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_ba47bff095e0eb254583f23f46b6016b1e57a907\classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
         jar="C:\Users\9987j\.android\build-cache\35ffbd0494979b5f8b3c444a6d79c6eb3cee4916\output\jars\libs\api-1.0-SNAPSHOT.jar"
         jumboMode="false"
         optimize="true"
         revision="26.0.2"
         sha1="d0c375d9be8682ad66b1dcc36f23e7042ebab943">
         <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\api-1.0-SNAPSHOT_b4a377fe29c828494bad50d94c276bc236d2c8c8\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\9987j\.android\build-cache\144e0a9e4b6181351908f554bd37d430330baae5\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="2442771a5590dd4eb4bce00c2e9dca9e22e4c963">
+        <dex dex="C:\Users\9987j\Desktop\DefaultApk\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_ba47bff095e0eb254583f23f46b6016b1e57a907\classes.dex" />
     </item>
     <item
         is-multidex="true"
