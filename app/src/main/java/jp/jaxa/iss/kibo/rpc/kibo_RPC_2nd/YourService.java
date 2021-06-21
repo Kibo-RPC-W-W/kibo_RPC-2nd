@@ -11,11 +11,15 @@ import com.google.zxing.common.GlobalHistogramBinarizer;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
+import org.opencv.android.Utils;
 import org.opencv.aruco.Aruco;
 import org.opencv.aruco.Dictionary;
 
+import org.opencv.core.CvException;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
@@ -32,6 +36,7 @@ import gov.nasa.arc.astrobee.types.Quaternion;
 import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
 
 import static org.opencv.core.CvType.CV_64FC1;
+import static org.opencv.imgproc.Imgproc.cvtColor;
 
 public class YourService extends KiboRpcService {
 
@@ -130,51 +135,22 @@ public class YourService extends KiboRpcService {
     /**************************************************************************
      *                        Aim Laser
      **************************************************************************/
-
-//    public void aim(Mat cam_Matrix, Mat dist_Coeff){
-//        Mat Nav_Cam_View = api.getMatNavCam();
-//        Mat ids = new Mat();
-//        List<Mat> corners = new ArrayList<>();
-//        Dictionary AR_Tag_dict = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
-////                    get target position in view img
-//        Aruco.detectMarkers(Nav_Cam_View, AR_Tag_dict, corners, ids);
-//
-//        if(!corners.isEmpty()) {
-//            Log.d("AR[status]:", " Detected");
-//            Log.d("AR[status]", corners.toString());
-//            Log.d("AR[status]", corners.size() + " ");
-//            Log.d("AR[status]", ids.dump());
-//        }else{
-//            Log.d("AR[status]:", "Detected");
-//        }
-//
-////        aim relative to Nav_cam's point of view
-//        Mat[] corners_sorted = new Mat[4];
-//        //            sort corners 1234
-//        for(int i = 0; i < 4; ++i)
-//        {
-//            int id = (int)ids.get(i, 0)[0];
-//            Mat vec = corners.get(i);
-//            corners_sorted[id - 1] = vec;
-//        }
-//        Log.d("Corners_Sorted:", corners_sorted.toString());
-//
-//        Mat rvecs = new Mat(4,3, CvType.CV_64FC(1));
-//        Mat tvecs =new Mat(4,3, CvType.CV_64FC(1));
-//        Log.d("AR[status]", "start estimate");
-//        Aruco.estimatePoseSingleMarkers(Arrays.asList(corners_sorted), 0.05f, cam_Matrix, dist_Coeff, rvecs, tvecs);
-//        Log.d("AR[status]", "end estimate");
-//
-//
-//    }
-    public void aim(String situation , Mat cam_Matrix,Mat dist_Coeff,Mat src,Mat map1, Mat map2 )
+    public void laser_Event()
     {
+        Mat cam_Matrix = getCamIntrinsics();
+        Mat dist_Coeff = getDist_coeff();
+        aim(cam_Matrix,dist_Coeff);
+        api.laserControl(true);
+        waiting();
+        api.takeSnapshot();
 
-        Quaternion cam_orientation = api.getTrustedRobotKinematics().getOrientation();
-        Log.d("Current Orientation: ", cam_orientation.toString());
+    }
 
-        Mat Nav_Cam_View = undistortImg(src, map1, map2);
+    public void aim(Mat cam_Matrix, Mat dist_Coeff){
+        Mat Nav_Cam_View = undistortImg(api.getMatNavCam());
         Mat ids = new Mat();
+        Quaternion q = api.getTrustedRobotKinematics().getOrientation();
+        Log.d("Current Pose", q.toString());
         List<Mat> corners = new ArrayList<>();
         Dictionary AR_Tag_dict = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
 //                    get target position in view img
@@ -190,138 +166,66 @@ public class YourService extends KiboRpcService {
         }
 
 //        aim relative to Nav_cam's point of view
-
-
         Mat[] corners_sorted = new Mat[4];
         //            sort corners 1234
         for(int i = 0; i < 4; ++i)
         {
             int id = (int)ids.get(i, 0)[0];
-//            Log.d("Debug", "1");
-//            ids_sorted[id-1] = id;
             Mat vec = corners.get(i);
-//            Log.d("Debug", "2");
-
             corners_sorted[id - 1] = vec;
-//            Log.d("Debug", "3");
-
         }
-
         Log.d("Corners_Sorted:", corners_sorted.toString());
-
-
-        float cam_qw = cam_orientation.getW();
-        float cam_qx = cam_orientation.getX();
-        float cam_qy = cam_orientation.getY();
-        float cam_qz = cam_orientation.getZ();
-
-        double[][] rotation_abs_to_cam = quaToRotationMatrix(new Quaternion(cam_qw,cam_qx,cam_qy,cam_qz));
-
-        double[] original_dir_i = {0,-1,0};
-        double[] original_dir_j = {0,0,-1};
-        double[] original_dir_k = {1,0,0};
-
-        double[] cam_dir_k = multiply_mat_vec(rotation_abs_to_cam, original_dir_k);
-        double[] cam_dir_i = multiply_mat_vec(rotation_abs_to_cam, original_dir_i);
-        double[] cam_dir_j = multiply_mat_vec(rotation_abs_to_cam, original_dir_j);
-
-        to_unit_vector(cam_dir_i);
-        to_unit_vector(cam_dir_j);
-        to_unit_vector(cam_dir_k);
 
         Mat rvecs = new Mat(4,3, CvType.CV_64FC(1));
         Mat tvecs =new Mat(4,3, CvType.CV_64FC(1));
         Log.d("AR[status]", "start estimate");
         Aruco.estimatePoseSingleMarkers(Arrays.asList(corners_sorted), 0.05f, cam_Matrix, dist_Coeff, rvecs, tvecs);
         Log.d("AR[status]", "end estimate");
-//        maybe, yep here
-        double[] p2 = new double[3];
-        p2[0] = tvecs.get(1, 0)[0];
-        p2[1] = tvecs.get(1, 1)[0];
-        p2[2] = tvecs.get(1, 2)[0];
-        double[] p4 = new double[3];
-        p4[0] = tvecs.get(3, 0)[0];
-        p4[1] = tvecs.get(3, 1)[0];
-        p4[2] = tvecs.get(3, 2)[0];
-        double[] target_vec_cam = get_midpoint(p2, p4);
-//        target_vec_cam[1] = target_vec_cam[1] + 0.2;
-
-        double[] laser_cam_vec =
-                {target_vec_cam[0] - 0.0994,
-                        target_vec_cam[1] - (-0.0285),
-                        target_vec_cam[2] - 0.0125};
-
-        double[][] t_mat = new double[3][3];
-        t_mat[0] = cam_dir_i; t_mat[1] = cam_dir_j; t_mat[2] = cam_dir_k;
-        double[] target_vec_abs = multiply_mat_vec(t_mat, target_vec_cam);
-        double[] laser_target_vec = multiply_mat_vec(t_mat, laser_cam_vec);
-
-//        cross camZ and target_vec_abs
-        double[] angle_info = new double[2];
-        double[] Vec_A = new double[3];
-        if(situation.equals("cam")) {
-            if(target_vec_cam[0] < 0) {
-                crossProduct(target_vec_abs, cam_dir_k, Vec_A);
-                angle_info = get_angle_info(cam_dir_k, target_vec_abs);
-            }else{
-                crossProduct(cam_dir_k, target_vec_abs,  Vec_A);
-                angle_info = get_angle_info(cam_dir_k, target_vec_abs);
-            }
-        }else if(situation.equals("laser")){
-            if(target_vec_cam[0] < 0) {
-                crossProduct(target_vec_abs, laser_target_vec, Vec_A);
-                angle_info = get_angle_info(laser_target_vec, target_vec_abs);
-            }else {
-                crossProduct(laser_target_vec, target_vec_abs, Vec_A);
-                angle_info = get_angle_info(laser_target_vec, target_vec_abs);
-            }
-        }
-        crossProduct(cam_dir_k, target_vec_abs, Vec_A);
-//        angle_info = get_angle_info(cam_dir_k, target_vec_abs);
-
-        to_unit_vector(Vec_A);
-//        get quaternion from cross and theta
-
-        double w = angle_info[0];
-        double s = angle_info[1];
-
-        double x = s * Vec_A[0];
-        double y = s * Vec_A[1];
-        double z = s * Vec_A[2];
-
-        Quaternion relative_target_orientation = new Quaternion((float)x,(float)y,(float)z,(float)w);
-//        Log.d("Target", target_orientation.toString());
-        Quaternion target_orientation = QuaternionMultiply(cam_orientation,relative_target_orientation);
-//        target_orientation = cam_orientation  relative_target_orientation;
-        try {
-            Log.d("TARGET QUATERNION[status]:", String.format("%s", target_orientation.toString()));
-        }catch (Exception e){
-            Log.d("TARGET QUATERNION[status]:", e.toString());
-        }
-        Point goal = new Point(0,0,0);
-        api.relativeMoveTo(goal,target_orientation,true);
-
-
+        double[] p2 = tvecs.get(0, 0);
+        double[] p4 = tvecs.get(2, 0);
+        double[] transVec = get_midpoint(p2, p4);
+        double[][] rotationMatrix = {
+                {0, 0, 0},
+                {0, 0, -1},
+                {0, 1, 0}
+        };
+        transVec = vecRotation(transVec, q);
+        transVec = vecRotation(transVec, rotationMatrix);
+        q = QuaternionMultiply(q, eulerToQuaternion(new double[]{1, 0, 0}, getRoll(transVec)));
+        Log.d("Target pose1", q.toString());
+        q = QuaternionMultiply(q, eulerToQuaternion(new double[]{0, 1, 0}, getPitch(transVec)));
+        Log.d("Target pose2", q.toString());
+        q = QuaternionMultiply(q, eulerToQuaternion(new double[]{0, 0, 1}, getYaw(transVec)));
+        Log.d("Target pose3", q.toString());
+        api.relativeMoveTo(new Point(), q, true);
+    }
+    public Quaternion eulerToQuaternion(double[] v, double rad){
+        double w = Math.cos(rad/2);
+        double s = Math.sin(rad/2);
+        return new Quaternion((float)(v[0] * s), (float)(v[1] * s), (float)(v[2] * s), (float)w);
+    }
+    //繞Z軸
+    public double getYaw(double[] v){
+        return Math.atan(v[1]/v[0]);
+    }
+    //繞X軸
+    public double getRoll(double[] v){
+        return Math.atan(v[1]/v[2]);
+    }
+    //繞Y軸
+    public double getPitch(double[] v){
+        return Math.atan(v[0]/v[2]);
+    }
+    public Quaternion quaInverse(Quaternion q){
+        return new Quaternion(-q.getX(), -q.getY(), -q.getZ(), q.getW());
     }
 
-    public void laser_Event()
-    {
-        Mat map1 = new Mat();
-        Mat map2 = new Mat();
-        Mat src1 = api.getMatNavCam();
-        Mat cam_Matrix = getCamIntrinsics();
-        Mat dist_Coeff = getDist_coeff();
-        get_undistort_info(cam_Matrix,dist_Coeff,map1,map2,src1);
-        aim("cam",cam_Matrix,dist_Coeff,src1,map1,map2);
-        Mat src2 = api.getMatNavCam();
-        aim("laser",cam_Matrix,dist_Coeff,src2,map1,map2);
-//        Quaternion target_orientation = Qua_multiply(first,second);
-//        Point goal = new Point(0,0,0);
-//        api.relativeMoveTo(goal,target_orientation,true);
-        api.laserControl(true);
-        waiting();
-        api.takeSnapshot();
+    public double[] vecRotation(double[] vec, Quaternion q){
+        return multiply_mat_vec(quaToRotationMatrix(q), vec);
+    }
 
+    public double[] vecRotation(double[] vec, double[][] m){
+        return multiply_mat_vec(m, vec);
     }
     public void get_undistort_info(Mat cam_Matrix,Mat dist_Coeff, Mat map1, Mat map2,Mat src){
 
@@ -410,7 +314,7 @@ public class YourService extends KiboRpcService {
         Rotation_Mat[1][0] = 2*xy + 2*zw;
         Rotation_Mat[1][1] = 1 - 2*xx - 2*zz;
         Rotation_Mat[1][2] = 2*yz - 2*xw;
-        Rotation_Mat[2][0] = 2*xz + 2*zw;
+        Rotation_Mat[2][0] = 2*xz - 2*yw;
         Rotation_Mat[2][1] = 2*yz + 2*xw;
         Rotation_Mat[2][2] = 1 - 2*xx - 2*yy;
         return  Rotation_Mat;
@@ -683,6 +587,38 @@ public class YourService extends KiboRpcService {
         ay = Double.parseDouble(spilt[3]);
         az = Double.parseDouble(spilt[4]);
         a_ = new Point(ax, ay, az);
+    }
+
+    private Mat cropicture(Mat crop){
+        Mat image_original = crop;
+        Point p1 = new Point(crop.width()/2,crop.height()/3,0);
+        Point p2 = new Point((crop.width()/3)*2,(crop.height()/3),0);
+        Point p3 = new Point(crop.width()/2,(crop.height()/3)*2,0);
+        Point p4 = new Point((crop.width()/3)*2,(crop.height()/3)*2,0);
+        Rect rectCrop = new Rect((int)(p1.getX()), (int)(p1.getY()) ,(int)((p4.getX()-p1.getX())+1), (int)((p4.getY()-p1.getY())+1));
+        Mat image_output= image_original.submat(rectCrop);
+        return image_output;
+    }
+
+    public Bitmap convertMat2Bitmap (Mat img) {
+        int width = img.width();
+        int hight = img.height();
+
+        Bitmap bmp;
+        bmp = Bitmap.createBitmap(width, hight, Bitmap.Config.ARGB_8888);
+        Mat tmp;
+        tmp = img.channels()==1? new Mat(width, hight, CvType.CV_8UC1, new Scalar(1)): new Mat(width, hight, CvType.CV_8UC3, new Scalar(3));
+        try {
+            if (img.channels()==3)
+                cvtColor(img, tmp, Imgproc.COLOR_RGB2BGRA);
+            else if (img.channels()==1)
+                cvtColor(img, tmp, Imgproc.COLOR_GRAY2RGBA);
+            Utils.matToBitmap(tmp, bmp);
+        }
+        catch (CvException e){
+            Log.d("Expection",e.getMessage());
+        }
+        return bmp;
     }
 
 }
