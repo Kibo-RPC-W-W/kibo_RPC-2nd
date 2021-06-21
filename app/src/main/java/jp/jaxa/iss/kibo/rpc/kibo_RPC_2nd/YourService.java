@@ -131,11 +131,11 @@ public class YourService extends KiboRpcService {
         Log.d("Debug map1",map1.dump());
         Log.d("Debug map2",map2.dump());
     }
-    public Mat undistortImg(Mat src,Mat map1, Mat map2)
+    public Mat undistortImg(Mat src,Mat cam_Matrix,Mat dist_Coeff)
     {
 
         Mat output = new Mat(src.rows(), src.cols(), src.type());
-        Imgproc.remap(src,output, map1, map2, Imgproc.INTER_NEAREST);
+        Imgproc.undistort(src, output, cam_Matrix,dist_Coeff);
 
         return output;
     }
@@ -197,24 +197,6 @@ public class YourService extends KiboRpcService {
         return result;
     }
 
-    public double[][] qua_to_rotation_mat(float q0, float q1, float q2, float q3)
-    {
-        double[][] Rotation_Mat = new double[3][3];
-
-        Rotation_Mat[0][0] =  (2 * (Math.pow((double)q0 , 2) + Math.pow((double)q1 , 2)) - 1 );
-        Rotation_Mat[0][1] = (double) 2*(q1*q2 - q0*q3);
-        Rotation_Mat[0][2] = (double) 2*(q1*q3 + q0*q2);
-        Rotation_Mat[1][0] = 2 * (q1* q2 + q0*q3);
-        Rotation_Mat[1][1] = (2 * (Math.pow((double)q0 , 2) + Math.pow((double)q2 , 2)) - 1 );
-        Rotation_Mat[1][2] = (double)2 * (q2* q3 - q0*q1);
-        Rotation_Mat[2][0] = 2 * (q1* q3 - q0*q2);
-        Rotation_Mat[2][1] = 2 * (q2* q3 + q0*q1);
-        Rotation_Mat[2][2] = (2 * (Math.pow((double)q0 , 2) + Math.pow((double)q3 , 2)) - 1 );
-
-        return Rotation_Mat;
-
-    }
-
     public double[] get_midpoint(double[] src1, double[] src2)
     {
         double[] mid_point = new double[3];
@@ -271,26 +253,55 @@ public class YourService extends KiboRpcService {
         return info;
     }
 
-    public Quaternion Qua_multiply(Quaternion Qa, Quaternion Qb)
-    {
+//    wrong
+//    public Quaternion Qua_multiply(Quaternion Qa, Quaternion Qb)
+//    {
+//
+//        float w = Qa.getW() * Qb.getW() - Qa.getX() * Qb.getX() - Qa.getY() * Qb.getY() - Qa.getZ()* Qb.getZ();
+//        float x = Qa.getW() * Qb.getX() + Qa.getX() * Qb.getW() + Qa.getY() * Qb.getZ() - Qa.getZ()* Qb.getY();
+//        float y = Qa.getW() * Qb.getY() - Qa.getX() * Qb.getZ() + Qa.getY() * Qb.getW() + Qa.getZ()* Qb.getX();
+//        float z = Qa.getW() * Qb.getZ() + Qa.getX() * Qb.getY() - Qa.getY() * Qb.getX() + Qa.getZ()* Qb.getW();
+//
+//        Quaternion Qc = new Quaternion(x, y, z, w);
+//        return Qc;
+//
+//    }
 
-        float w = Qa.getW() * Qb.getW() - Qa.getX() * Qb.getX() - Qa.getY() * Qb.getY() - Qa.getZ()* Qb.getZ();
-        float x = Qa.getW() * Qb.getX() + Qa.getX() * Qb.getW() + Qa.getY() * Qb.getZ() - Qa.getZ()* Qb.getY();
-        float y = Qa.getW() * Qb.getY() - Qa.getX() * Qb.getZ() + Qa.getY() * Qb.getW() + Qa.getZ()* Qb.getX();
-        float z = Qa.getW() * Qb.getZ() + Qa.getX() * Qb.getY() - Qa.getY() * Qb.getX() + Qa.getZ()* Qb.getW();
+    public Quaternion QuaternionMultiply(Quaternion qa, Quaternion qb){
+        float x = qa.getX(), y = qa.getY(), z = qa.getZ(), w = qa.getW();
+        float xb = qb.getX(), yb = qb.getY(), zb = qb.getZ(), wb = qb.getW();
 
-        Quaternion Qc = new Quaternion(x, y, z, w);
-        return Qc;
-
+        float x_ = xb*w - xb*z + xb*y + xb*x;
+        float y_ = yb*z + yb*w - yb*x + yb*y;
+        float z_ = -zb*y + zb*x + zb*w + zb*z;
+        float w_ = -wb*x -wb*y - wb*z + wb*w;
+        return new Quaternion(x_, y_, z_, w_);
     }
+
+//    public double[][] quaToRotationMatrix(Quaternion q){
+//        double x = q.getX(), y = q.getY(), z = q.getZ(), w = q.getW();
+//        double yy = y * y, xx = x * x, zz = z * z;
+//        double xy = x * y, xw = x* w, xz = x * z, zw = z * w, yw = y * w, yz = y * z;
+//
+//        double[][] Rotation_Mat = new double[3][3];
+//        Rotation_Mat[0][0] =  1 - 2*yy - 2*zz;
+//        Rotation_Mat[0][1] = 2*xy - 2*zw;
+//        Rotation_Mat[0][2] = 2*xz + 2*yw;
+//        Rotation_Mat[1][0] = 2*xy + 2*zw;
+//        Rotation_Mat[1][1] = 1 - 2*xx - 2*zz;
+//        Rotation_Mat[1][2] = 2*yz - 2*xw;
+//        Rotation_Mat[2][0] = 2*xz - 2*yw;
+//        Rotation_Mat[2][1] = 2*yz + 2*xw;
+//        Rotation_Mat[2][2] = 1 - 2*xx - 2*yy;
+//        return  Rotation_Mat;
+//    }
 
     public void aim(String situation , Mat cam_Matrix,Mat dist_Coeff,Mat src,Mat map1, Mat map2 )
     {
-
         Quaternion cam_orientation = api.getTrustedRobotKinematics().getOrientation();
         Log.d("Current Orientation: ", cam_orientation.toString());
 
-        Mat Nav_Cam_View = undistortImg(src, map1, map2);
+        Mat Nav_Cam_View = undistortImg(src,cam_Matrix,dist_Coeff);
         Mat ids = new Mat();
         List<Mat> corners = new ArrayList<>();
         Dictionary AR_Tag_dict = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
@@ -308,7 +319,6 @@ public class YourService extends KiboRpcService {
 
 //        aim relative to Nav_cam's point of view
 
-
         Mat[] corners_sorted = new Mat[4];
         //            sort corners 1234
         for(int i = 0; i < 4; ++i)
@@ -318,33 +328,34 @@ public class YourService extends KiboRpcService {
 //            ids_sorted[id-1] = id;
             Mat vec = corners.get(i);
 //            Log.d("Debug", "2");
-
             corners_sorted[id - 1] = vec;
 //            Log.d("Debug", "3");
-
         }
 
         Log.d("Corners_Sorted:", corners_sorted.toString());
 
+//        float cam_qw = cam_orientation.getW();
+//        float cam_qx = cam_orientation.getX();
+//        float cam_qy = cam_orientation.getY();
+//        float cam_qz = cam_orientation.getZ();
 
-        float cam_qw = cam_orientation.getW();
-        float cam_qx = cam_orientation.getX();
-        float cam_qy = cam_orientation.getY();
-        float cam_qz = cam_orientation.getZ();
+//        double[][] rotation_abs_to_cam = qua_to_rotation_mat(cam_qw,cam_qx,cam_qy,cam_qz);
+//        double[][] rotation_abs_to_cam = {
+//                {1, 0, 0},
+//                {0, 0, -1},
+//                {0, 1, 0}
+//        };
+//        double[] original_dir_i = {0,-1,0};
+//        double[] original_dir_j = {0,0,1};
+//        double[] original_dir_k = {1,0,0};
+//
 
-        double[][] rotation_abs_to_cam = qua_to_rotation_mat(cam_qw,cam_qx,cam_qy,cam_qz);
-
-        double[] original_dir_i = {0,-1,0};
-        double[] original_dir_j = {0,0,-1};
-        double[] original_dir_k = {1,0,0};
-
-        double[] cam_dir_k = multiply_mat_vec(rotation_abs_to_cam, original_dir_k);
-        double[] cam_dir_i = multiply_mat_vec(rotation_abs_to_cam, original_dir_i);
-        double[] cam_dir_j = multiply_mat_vec(rotation_abs_to_cam, original_dir_j);
-
-        to_unit_vector(cam_dir_i);
-        to_unit_vector(cam_dir_j);
-        to_unit_vector(cam_dir_k);
+//        double[] cam_dir_i = {1, 0, 0};
+//        double[] cam_dir_j = {0, 0, 1};
+//
+//        to_unit_vector(cam_dir_i);
+//        to_unit_vector(cam_dir_j);
+//        to_unit_vector(cam_dir_k);
 
         Mat rvecs = new Mat(4,3, CvType.CV_64FC(1));
         Mat tvecs =new Mat(4,3, CvType.CV_64FC(1));
@@ -368,33 +379,30 @@ public class YourService extends KiboRpcService {
                         target_vec_cam[1] - (-0.0285),
                         target_vec_cam[2] - 0.0125};
 
-        double[][] t_mat = new double[3][3];
-        t_mat[0] = cam_dir_i; t_mat[1] = cam_dir_j; t_mat[2] = cam_dir_k;
+//        double[][] t_mat = new double[3][3];
+//        t_mat[0] = cam_dir_i; t_mat[1] = cam_dir_j; t_mat[2] = cam_dir_k;
+                double[][] t_mat = {
+                {1, 0, 0},
+                {0, 0, -1},
+                {0, 1, 0}
+        };
+
         double[] target_vec_abs = multiply_mat_vec(t_mat, target_vec_cam);
-        double[] laser_target_vec = multiply_mat_vec(t_mat, laser_cam_vec);
+//        double[] laser_target_vec = multiply_mat_vec(t_mat, laser_cam_vec);
 
 //        cross camZ and target_vec_abs
-        double[] angle_info = new double[2];
+//        double[] angle_info = new double[2];
         double[] Vec_A = new double[3];
-        if(situation.equals("cam")) {
-            if(target_vec_cam[0] < 0) {
-                crossProduct(target_vec_abs, cam_dir_k, Vec_A);
-                angle_info = get_angle_info(cam_dir_k, target_vec_abs);
-            }else{
-                crossProduct(cam_dir_k, target_vec_abs,  Vec_A);
-                angle_info = get_angle_info(cam_dir_k, target_vec_abs);
-            }
-        }else if(situation.equals("laser")){
-            if(target_vec_cam[0] < 0) {
-                crossProduct(target_vec_abs, laser_target_vec, Vec_A);
-                angle_info = get_angle_info(laser_target_vec, target_vec_abs);
-            }else {
-                crossProduct(laser_target_vec, target_vec_abs, Vec_A);
-                angle_info = get_angle_info(laser_target_vec, target_vec_abs);
-            }
-        }
+//        if(situation.equals("cam")) {
+//            crossProduct(cam_dir_k, target_vec_abs,  Vec_A);
+//            angle_info = get_angle_info(cam_dir_k, target_vec_abs);
+//        }else if(situation.equals("laser")){
+//            crossProduct(laser_target_vec, target_vec_abs, Vec_A);
+//            angle_info = get_angle_info(laser_target_vec, target_vec_abs);
+//        }
+        double[] cam_dir_k = {0, -1, 0};
         crossProduct(cam_dir_k, target_vec_abs, Vec_A);
-//        angle_info = get_angle_info(cam_dir_k, target_vec_abs);
+        double[] angle_info = get_angle_info(cam_dir_k, target_vec_abs);
 
         to_unit_vector(Vec_A);
 //        get quaternion from cross and theta
@@ -408,7 +416,7 @@ public class YourService extends KiboRpcService {
 
         Quaternion relative_target_orientation = new Quaternion((float)x,(float)y,(float)z,(float)w);
 //        Log.d("Target", target_orientation.toString());
-        Quaternion target_orientation = Qua_multiply(cam_orientation,relative_target_orientation);
+        Quaternion target_orientation = QuaternionMultiply(cam_orientation,relative_target_orientation);
 //        target_orientation = cam_orientation  relative_target_orientation;
         try {
             Log.d("TARGET QUATERNION[status]:", String.format("%s", target_orientation.toString()));
@@ -428,10 +436,10 @@ public class YourService extends KiboRpcService {
         Mat src1 = api.getMatNavCam();
         Mat cam_Matrix = getCamIntrinsics();
         Mat dist_Coeff = getDist_coeff();
-        get_undistort_info(cam_Matrix,dist_Coeff,map1,map2,src1);
+//        get_undistort_info(cam_Matrix,dist_Coeff,map1,map2,src1);
         aim("cam",cam_Matrix,dist_Coeff,src1,map1,map2);
-        Mat src2 = api.getMatNavCam();
-        aim("laser",cam_Matrix,dist_Coeff,src2,map1,map2);
+//        Mat src2 = api.getMatNavCam();
+//        aim("laser",cam_Matrix,dist_Coeff,src2,map1,map2);
 //        Quaternion target_orientation = Qua_multiply(first,second);
 //        Point goal = new Point(0,0,0);
 //        api.relativeMoveTo(goal,target_orientation,true);
