@@ -278,23 +278,23 @@ public class YourService extends KiboRpcService {
         return new Quaternion(x_, y_, z_, w_);
     }
 
-//    public double[][] quaToRotationMatrix(Quaternion q){
-//        double x = q.getX(), y = q.getY(), z = q.getZ(), w = q.getW();
-//        double yy = y * y, xx = x * x, zz = z * z;
-//        double xy = x * y, xw = x* w, xz = x * z, zw = z * w, yw = y * w, yz = y * z;
-//
-//        double[][] Rotation_Mat = new double[3][3];
-//        Rotation_Mat[0][0] =  1 - 2*yy - 2*zz;
-//        Rotation_Mat[0][1] = 2*xy - 2*zw;
-//        Rotation_Mat[0][2] = 2*xz + 2*yw;
-//        Rotation_Mat[1][0] = 2*xy + 2*zw;
-//        Rotation_Mat[1][1] = 1 - 2*xx - 2*zz;
-//        Rotation_Mat[1][2] = 2*yz - 2*xw;
-//        Rotation_Mat[2][0] = 2*xz - 2*yw;
-//        Rotation_Mat[2][1] = 2*yz + 2*xw;
-//        Rotation_Mat[2][2] = 1 - 2*xx - 2*yy;
-//        return  Rotation_Mat;
-//    }
+    public double[][] quaToRotationMatrix(Quaternion q){
+        double x = q.getX(), y = q.getY(), z = q.getZ(), w = q.getW();
+        double yy = y * y, xx = x * x, zz = z * z;
+        double xy = x * y, xw = x* w, xz = x * z, zw = z * w, yw = y * w, yz = y * z;
+
+        double[][] Rotation_Mat = new double[3][3];
+        Rotation_Mat[0][0] =  1 - 2*yy - 2*zz;
+        Rotation_Mat[0][1] = 2*xy - 2*zw;
+        Rotation_Mat[0][2] = 2*xz + 2*yw;
+        Rotation_Mat[1][0] = 2*xy + 2*zw;
+        Rotation_Mat[1][1] = 1 - 2*xx - 2*zz;
+        Rotation_Mat[1][2] = 2*yz - 2*xw;
+        Rotation_Mat[2][0] = 2*xz - 2*yw;
+        Rotation_Mat[2][1] = 2*yz + 2*xw;
+        Rotation_Mat[2][2] = 1 - 2*xx - 2*yy;
+        return  Rotation_Mat;
+    }
 
     public void aim(String situation , Mat cam_Matrix,Mat dist_Coeff,Mat src,Mat map1, Mat map2 )
     {
@@ -339,7 +339,10 @@ public class YourService extends KiboRpcService {
 //        float cam_qy = cam_orientation.getY();
 //        float cam_qz = cam_orientation.getZ();
 
-//        double[][] rotation_abs_to_cam = qua_to_rotation_mat(cam_qw,cam_qx,cam_qy,cam_qz);
+        double[][] rotation_abs_to_cam = quaToRotationMatrix(cam_orientation);
+        for(int i = 0; i<=2; ++i){
+        Log.d("rotation matrix",rotation_abs_to_cam[i].toString());
+        }
 //        double[][] rotation_abs_to_cam = {
 //                {1, 0, 0},
 //                {0, 0, -1},
@@ -374,10 +377,10 @@ public class YourService extends KiboRpcService {
         double[] target_vec_cam = get_midpoint(p2, p4);
 //        target_vec_cam[1] = target_vec_cam[1] + 0.2;
 
-        double[] laser_cam_vec =
-                {target_vec_cam[0] - 0.0994,
-                        target_vec_cam[1] - (-0.0285),
-                        target_vec_cam[2] - 0.0125};
+//        double[] laser_cam_vec =
+//                {target_vec_cam[0] - 0.0994,
+//                        target_vec_cam[1] - (-0.0285),
+//                        target_vec_cam[2] - 0.0125};
 
 //        double[][] t_mat = new double[3][3];
 //        t_mat[0] = cam_dir_i; t_mat[1] = cam_dir_j; t_mat[2] = cam_dir_k;
@@ -415,9 +418,8 @@ public class YourService extends KiboRpcService {
         double z = s * Vec_A[2];
 
         Quaternion relative_target_orientation = new Quaternion((float)x,(float)y,(float)z,(float)w);
-//        Log.d("Target", target_orientation.toString());
         Quaternion target_orientation = QuaternionMultiply(cam_orientation,relative_target_orientation);
-//        target_orientation = cam_orientation  relative_target_orientation;
+
         try {
             Log.d("TARGET QUATERNION[status]:", String.format("%s", target_orientation.toString()));
         }catch (Exception e){
